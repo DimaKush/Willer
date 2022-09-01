@@ -1,0 +1,24 @@
+autofetch_sources: True
+dotenv: .env
+compiler:
+  solc:
+    remappings:
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.7.3"
+networks:
+  default: development
+  development:
+    verify: False
+  goerli:
+    verify: True
+
+wallets:
+  deployer: ${DEPLOYER_PRIVATE_KEY}
+  beneficiary: ${BENEFICIARY_PRIVATE_KEY}
+  executor:  ${EXECUTOR_PRIVATE_KEY}
+
+settings:
+  delay: 100 # in seconds
+  test_delay: 5 # for tests
+  n_contracts: 2 # for dummy tokens
+  n_ids: 3 # for dummy tokens
+  value: 100 # for dummy tokens
