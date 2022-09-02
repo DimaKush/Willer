@@ -4,6 +4,15 @@ import brownie.network
 import pytest
 
 
+@pytest.fixture(scope='function', autouse=True)
+def setup(fn_isolation):
+    """
+    Isolation setup fixture.
+    This ensures that each test runs against the same base environment.
+    """
+    pass
+
+
 @pytest.fixture(scope='module')
 def n_contracts():
     yield config['settings']['n_contracts']
@@ -38,26 +47,25 @@ def beneficiaries(accounts):
 def new_beneficiary(accounts):
     yield accounts[5]
 
+
 @pytest.fixture(scope='module')
 def beneficiaryOfERC721(accounts):
     yield accounts[6]
+
+
+@pytest.fixture(scope='module')
+def executor(accounts):
+    yield accounts[7]
+
 
 @pytest.fixture(scope='module')
 def shares():
     yield [6, 3, 1]
 
+
 @pytest.fixture(scope='module')
 def delay():
     yield config['settings']['test_delay']
-
-
-@pytest.fixture(scope='function', autouse=True)
-def setup(fn_isolation):
-    """
-    Isolation setup fixture.
-    This ensures that each test runs against the same base environment.
-    """
-    pass
 
 
 @pytest.fixture(scope="module")
@@ -115,7 +123,8 @@ def batch_approve(testator, ERC20_token_contracts, ERC721_token_contracts, ERC11
         i.setApprovalForAll(willer_contract.address, True, {'from': testator})
 
 
-@pytest.fixture(scope="module", autouse=True)
+# still don't figure out scopes and autouse 😅
+@pytest.fixture(scope='module', autouse=True)
 def add_will(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
     release_time = round(datetime.datetime.timestamp(datetime.datetime.now()) + delay)
     willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator})
