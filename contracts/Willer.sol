@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
  *
  */
 contract Willer {
-    using SafeMath for uint;
+    using Math for uint;
     using SafeERC20 for IERC20;
 
     struct Will {
@@ -31,7 +31,7 @@ contract Willer {
     modifier releasable(address _testator) {
         require(
             block.timestamp >= testatorToWill[_testator].releaseTime,
-            "Willer: Too early for release"
+            "Willer: unreleasable"
         );
         _;
     }
@@ -73,9 +73,20 @@ contract Willer {
         );
         require(
             releaseTime_ >= block.timestamp + buffer,
-            "Willer: Invalid release time"
+            "Willer: invalid release time"
         );
 
+        for (uint i; i<beneficiaries_.length; i++) {
+            require(
+            beneficiaries_[i] != address(0), "Willer: address zero is not a valid beneficiary"
+            );
+        }
+
+        require(
+            beneficiaryOfERC721_ != address(0),
+            "Willer: address zero is not a valid beneficiaryOfERC721"
+        );
+        
         Will storage w = testatorToWill[msg.sender];
         w.beneficiaries = beneficiaries_;
         w.shares = shares_;
@@ -108,6 +119,14 @@ contract Willer {
 
     function getSumShares(address testator) public view returns (uint) {
         return testatorToWill[testator].sumShares;
+    }
+
+    function getBeneficiaryOfERC721(address _testator)
+        public
+        view
+        returns (address beneficiaryOfERC721)
+    {
+        return testatorToWill[_testator].beneficiaryOfERC721;
     }
 
     // function beforeReleaseTime(address testator)
@@ -143,7 +162,7 @@ contract Willer {
         willExists(msg.sender)
         returns (uint)
     {
-        require(newReleaseTime != 0, "newReleaseTime=0");
+        require(newReleaseTime != 0, "Willer: newReleaseTime = 0");
         testatorToWill[msg.sender].releaseTime = newReleaseTime;
         // emit NewReleaseTime(testatorToWill[msg.sender]);
         return testatorToWill[msg.sender].releaseTime;
@@ -157,14 +176,6 @@ contract Willer {
         // emit NewBeneficiaryOfERC721(beneficiary);
     }
 
-    function getBeneficiaryOfERC721(address _testator)
-        public
-        view
-        returns (address beneficiaryOfERC721)
-    {
-        return testatorToWill[_testator].beneficiaryOfERC721;
-    }
-
     function releaseERC20(address testator, IERC20 tokenERC20)
         public
         willExists(testator)
@@ -172,9 +183,9 @@ contract Willer {
     {
         uint balance = tokenERC20.balanceOf(testator);
         uint bequest = 0;
-        require(balance != 0, "No ERC20 tokens to release");
+        require(balance != 0, "Willer: No ERC20 tokens to release");
         uint allowed = tokenERC20.allowance(testator, address(this));
-        require(allowed != 0, "ERC20 zero allowance");
+        require(allowed != 0, "Willer: ERC20 zero allowance");
         if (allowed < balance) {
             balance = allowed;
         }
@@ -183,13 +194,7 @@ contract Willer {
             i < testatorToWill[testator].beneficiaries.length;
             i++
         ) {
-            if (i == testatorToWill[testator].beneficiaries.length - 1) {
-                bequest = tokenERC20.balanceOf(testator);
-            } else {
-                bequest = balance.mul(testatorToWill[testator].shares[i]).div(
-                    testatorToWill[testator].sumShares
-                );
-            }
+            bequest = balance.mulDiv(testatorToWill[testator].shares[i], testatorToWill[testator].sumShares);
             tokenERC20.safeTransferFrom(
                 testator,
                 testatorToWill[testator].beneficiaries[i],
@@ -223,26 +228,6 @@ contract Willer {
         // emit ReleasedERC721(testator, beneficiaryOfERC721, tokenERC721);
     }
 
-    //    function batchReleaseERC721(address testator, address beneficiary, IERC721[] calldata tokenERC721List,
-    //        uint[][] calldata tokenIdLists)
-    //    external {
-    //
-    //        for (uint i = 0; i < tokenERC721List.length; i++) {
-    //            if (testatorToWill[testator].ERC721ToIdToBeneficiary[tokenERC721List[i]][tokenIdLists[i]])
-    //            this.releaseERC721(testator, beneficiary, tokenERC721List[i], tokenIdLists[i]);
-    //        }
-    //    }
-
-    function calcERC1155Bequest(
-        address testator,
-        IERC1155 tokenERC1155,
-        uint[] calldata tokenIdList
-    ) external {
-        uint[] memory bequest = new uint[](
-            testatorToWill[testator].beneficiaries.length
-        );
-    }
-
     // Last beneficiary gets dust =)
     function releaseERC1155(
         address testator,
@@ -256,13 +241,14 @@ contract Willer {
             i < testatorToWill[testator].beneficiaries.length;
             i++
         ) {
-            if (i == testatorToWill[testator].beneficiaries.length - 1) {
-                bequest = tokenERC1155.balanceOf(testator, tokenId);
-            } else {
-                bequest = balance.mul(testatorToWill[testator].shares[i]).div(
-                    testatorToWill[testator].sumShares
-                );
-            }
+            bequest = balance.mulDiv(testatorToWill[testator].shares[i], testatorToWill[testator].sumShares);
+            // if (i == testatorToWill[testator].beneficiaries.length - 1) {
+            //     bequest = tokenERC1155.balanceOf(testator, tokenId);
+            // } else {
+            //     bequest = balance.mul(testatorToWill[testator].shares[i]).div(
+            //         testatorToWill[testator].sumShares
+            //     );
+            // }
             tokenERC1155.safeTransferFrom(
                 testator,
                 testatorToWill[testator].beneficiaries[i],
