@@ -1,8 +1,8 @@
 import datetime
 from brownie import config
-import brownie.network
 import pytest
-
+from datetime import datetime, timedelta
+import time
 
 @pytest.fixture(scope='function', autouse=True)
 def setup(fn_isolation):
@@ -126,5 +126,18 @@ def batch_approve(testator, ERC20_token_contracts, ERC721_token_contracts, ERC11
 # still don't figure out scopes and autouse 😅
 @pytest.fixture(scope='module', autouse=True)
 def add_will(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
-    release_time = round(datetime.datetime.timestamp(datetime.datetime.now()) + delay)
+    release_time = round(datetime.timestamp(datetime.now()) + delay)
     willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator})
+
+
+@pytest.fixture(scope='function')
+def extend_release_time(testator, willer_contract, delay):
+    new_release_time = round(datetime.timestamp(datetime.now())) + delay
+    willer_contract.setNewReleaseTime(new_release_time, {'from': testator})
+
+
+@pytest.fixture(scope='function')
+def wait_release_time(willer_contract, testator):
+    time_till_release = round(willer_contract.getReleaseTime(testator) - datetime.timestamp(datetime.now()))
+    if time_till_release > 0:
+        time.sleep(time_till_release + 2)
