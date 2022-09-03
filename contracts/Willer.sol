@@ -28,9 +28,9 @@ contract Willer {
 
     mapping(address => Will) public testatorToWill;
 
-    modifier releasable(uint _releaseTime) {
+    modifier releasable(address _testator) {
         require(
-            block.timestamp >= _releaseTime,
+            block.timestamp >= testatorToWill[_testator].releaseTime,
             "Willer: Too early for release"
         );
         _;
@@ -69,7 +69,7 @@ contract Willer {
     ) public {
         require(
             beneficiaries_.length == shares_.length,
-            "beneficiaries_.length != shares_.length)"
+            "Willer: beneficiaries_ and shares_ length mismatch"
         );
         require(
             releaseTime_ >= block.timestamp + buffer,
@@ -141,10 +141,12 @@ contract Willer {
     function setNewReleaseTime(uint newReleaseTime)
         external
         willExists(msg.sender)
+        returns (uint)
     {
         require(newReleaseTime != 0, "newReleaseTime=0");
         testatorToWill[msg.sender].releaseTime = newReleaseTime;
         // emit NewReleaseTime(testatorToWill[msg.sender]);
+        return testatorToWill[msg.sender].releaseTime;
     }
 
     function setNewBeneficiaryOfERC721(address newBeneficiaryOfERC721)
@@ -166,9 +168,10 @@ contract Willer {
     function releaseERC20(address testator, IERC20 tokenERC20)
         public
         willExists(testator)
-        releasable(testatorToWill[testator].releaseTime)
+        releasable(testator)
     {
         uint balance = tokenERC20.balanceOf(testator);
+        uint bequest = 0;
         require(balance != 0, "No ERC20 tokens to release");
         uint allowed = tokenERC20.allowance(testator, address(this));
         require(allowed != 0, "ERC20 zero allowance");
@@ -180,27 +183,26 @@ contract Willer {
             i < testatorToWill[testator].beneficiaries.length;
             i++
         ) {
-            uint bequest = balance.mul(testatorToWill[testator].shares[i]).div(
-                testatorToWill[testator].sumShares
-            );
+            if (i == testatorToWill[testator].beneficiaries.length - 1) {
+                bequest = tokenERC20.balanceOf(testator);
+            } else {
+                bequest = balance.mul(testatorToWill[testator].shares[i]).div(
+                    testatorToWill[testator].sumShares
+                );
+            }
             tokenERC20.safeTransferFrom(
                 testator,
                 testatorToWill[testator].beneficiaries[i],
                 bequest
             );
-            // emit ReleasedERC20(testator, beneficiary, address(tokenERC20));
+            // emit ReleasedERC20(testator, beneficiary, tokenERC20);
         }
     }
 
     function batchReleaseERC20(
         address testator,
         IERC20[] calldata tokenERC20List
-    ) public {
-        require(
-            block.timestamp >= getReleaseTime(testator),
-            "Current time is before release time"
-        );
-
+    ) external willExists(testator) releasable(testator) {
         for (uint i = 0; i < tokenERC20List.length; i++) {
             this.releaseERC20(testator, tokenERC20List[i]);
         }
@@ -210,11 +212,7 @@ contract Willer {
         address testator,
         IERC721 tokenERC721,
         uint[] calldata tokenIdList
-    ) public {
-        require(
-            block.timestamp >= getReleaseTime(testator),
-            "Current time is before release time"
-        );
+    ) external willExists(testator) releasable(testator) {
         for (uint i = 0; i < tokenIdList.length; i++) {
             tokenERC721.safeTransferFrom(
                 testator,
@@ -222,7 +220,7 @@ contract Willer {
                 tokenIdList[i]
             );
         }
-        // emit ReleasedERC721(testator, beneficiaryOfERC721, address(tokenERC721));
+        // emit ReleasedERC721(testator, beneficiaryOfERC721, tokenERC721);
     }
 
     //    function batchReleaseERC721(address testator, address beneficiary, IERC721[] calldata tokenERC721List,
@@ -235,69 +233,82 @@ contract Willer {
     //        }
     //    }
 
-    // function releaseERC1155(
+    function calcERC1155Bequest(
+        address testator,
+        IERC1155 tokenERC1155,
+        uint[] calldata tokenIdList
+    ) external {
+        uint[] memory bequest = new uint[](
+            testatorToWill[testator].beneficiaries.length
+        );
+    }
+
+    // Last beneficiary gets dust =)
+    function releaseERC1155(
+        address testator,
+        IERC1155 tokenERC1155,
+        uint tokenId
+    ) external willExists(testator) releasable(testator) {
+        uint balance = tokenERC1155.balanceOf(testator, tokenId);
+        uint bequest = 0;
+        for (
+            uint i = 0;
+            i < testatorToWill[testator].beneficiaries.length;
+            i++
+        ) {
+            if (i == testatorToWill[testator].beneficiaries.length - 1) {
+                bequest = tokenERC1155.balanceOf(testator, tokenId);
+            } else {
+                bequest = balance.mul(testatorToWill[testator].shares[i]).div(
+                    testatorToWill[testator].sumShares
+                );
+            }
+            tokenERC1155.safeTransferFrom(
+                testator,
+                testatorToWill[testator].beneficiaries[i],
+                tokenId,
+                bequest,
+                bytes("")
+            );
+        }
+        // emit ReleasedERC1155(testator, beneficiary, address(tokenERC1155));
+    }
+
+    function batchReleaseERC1155(
+        address testator,
+        IERC1155 tokenERC1155,
+        uint[] calldata tokenIdLists
+    ) external {
+        for (uint i = 0; i < tokenIdLists.length; i++) {
+            this.releaseERC1155(testator, tokenERC1155, tokenIdLists[i]);
+        }
+    }
+
+    // function batchRelease(
     //     address testator,
-    //     IERC1155 tokenERC1155,
-    //     uint[] memory tokenIdList,
-    //     uint[] memory values
+    //     address beneficiary,
+    //     IERC20[] calldata tokenERC20List,
+    //     IERC721[] memory tokenERC721List,
+    //     IERC1155[] memory tokenERC1155List,
+    //     uint[][] memory ERC721tokenIdLists,
+    //     uint[][] memory ERC1155tokenIdLists,
+    //     uint[][] memory valuesLists
     // ) external {
-    //     require(
-    //         block.timestamp >= testatorToWill[testator].releaseTime,
-    //         "Current time is before release time"
-    //     );
-    //     require (tokenIdList.length == values.length, "tokenIdList.length != values.length,");
-    //     for (uint n = 0; n < testatorToWill[testator].beneficiaries; n++) {
-    //         uint bequest = values[n].mul(testatorToWill[testator].shares[n]).div(testatorToWill[testator].sumShares),
-    //         tokenERC1155.safeBatchTransferFrom(
+    //     this.batchReleaseERC20(testator, beneficiary, tokenERC20List);
+    //     this.batchReleaseERC721(
     //         testator,
-    //         testatorToWill[testator].beneficiaries[n],
-    //         tokenIdList,
-    //         bequest
-    //         bytes("")
+    //         beneficiary,
+    //         tokenERC721List,
+    //         ERC721tokenIdLists
     //     );
-    //     // emit ReleasedERC1155(testator, beneficiary, address(tokenERC1155));
-    //     }
+    //     this.batchReleaseERC1155(
+    //         testator,
+    //         beneficiary,
+    //         tokenERC1155List,
+    //         ERC1155tokenIdLists,
+    //         valuesLists
+    //     );
     // }
-    // function batchReleaseERC1155(
-    //     address testator,
-    //     IERC1155[] calldata tokenERC1155List,
-    //     uint[][] calldata tokenIdLists,
-    //     uint[][] calldata valuesLists
-    // ) external {
-    //     for (uint i = 0; i < tokenERC1155List.length; i++) {
-    //         this.releaseERC1155(
-    //             testator,
-    //             tokenERC1155List[i],
-    //             tokenIdLists[i],
-    //             valuesLists[i]
-    //         );
-    //     }
-    //     }
-    //     // function batchRelease(
-    //     //     address testator,
-    //     //     address beneficiary,
-    //     //     IERC20[] calldata tokenERC20List,
-    //     //     IERC721[] memory tokenERC721List,
-    //     //     IERC1155[] memory tokenERC1155List,
-    //     //     uint[][] memory ERC721tokenIdLists,
-    //     //     uint[][] memory ERC1155tokenIdLists,
-    //     //     uint[][] memory valuesLists
-    //     // ) external {
-    //     //     this.batchReleaseERC20(testator, beneficiary, tokenERC20List);
-    //     //     this.batchReleaseERC721(
-    //     //         testator,
-    //     //         beneficiary,
-    //     //         tokenERC721List,
-    //     //         ERC721tokenIdLists
-    //     //     );
-    //     //     this.batchReleaseERC1155(
-    //     //         testator,
-    //     //         beneficiary,
-    //     //         tokenERC1155List,
-    //     //         ERC1155tokenIdLists,
-    //     //         valuesLists
-    //     //     );
-    //     // }
 }
 
 //if smth fails, just // it ahah=)

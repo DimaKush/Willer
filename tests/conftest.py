@@ -60,7 +60,7 @@ def executor(accounts):
 
 @pytest.fixture(scope='module')
 def shares():
-    yield [6, 3, 1]
+    yield config['settings']['shares']
 
 
 @pytest.fixture(scope='module')

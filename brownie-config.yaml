@@ -18,7 +18,8 @@ wallets:
 
 settings:
   delay: 100 # in seconds
-  test_delay: 5 # for tests
+  test_delay: 10 # for tests
   n_contracts: 2 # for dummy tokens
   n_ids: 3 # for dummy tokens
-  value: 100 # for dummy tokens
+  value: 50 # for dummy tokens
+  shares: [2, 3, 5]
