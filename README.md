@@ -4,3 +4,5 @@ Willer is used as a testamentary notary: entrust your ERC20, NFT or ERC1155 toke
 The testator must extend release time to prove his access to private key. When the release time  expires, beneficiaries are able to call release function to perform the bequest of the tokens.
 
 Welcome to my messed code and failing tests =)
+
+See [SimpleWill](https://github.com/DimaKush/SimpleWill), basic version of Willer functionality
