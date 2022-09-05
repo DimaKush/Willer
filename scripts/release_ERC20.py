@@ -1,7 +1,7 @@
-from brownie import TokenERC20, Willer
+from brownie import Willer, TokenERC20
 from scripts import get_accounts
 
 def main():
     deployer, testator, beneficiaries, new_beneficiary, beneficiaryOfERC721, executor = get_accounts.main()
-    Willer[-1].batchReleaseERC20(testator, list(TokenERC20), {"from": executor})
-
+    for t in TokenERC20:
+        Willer[-1].releaseERC20(testator, t, {'from': executor})

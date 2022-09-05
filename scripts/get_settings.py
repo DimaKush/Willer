@@ -1,6 +1,6 @@
 from brownie import config, network
 
-def get_settings():
+def main():
     n_contracts = config['settings']['n_contracts']
     n_ids = config['settings']['n_ids']
     value = config['settings']['value']

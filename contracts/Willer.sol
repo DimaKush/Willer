@@ -44,12 +44,29 @@ contract Willer {
     //     _;
     // }
 
+    modifier validBeneficiaries(address[] calldata beneficiaries_) {
+        for (uint i; i<beneficiaries_.length; i++) {
+            require(
+            beneficiaries_[i] != address(0), "Willer: address zero is not a valid beneficiary"
+            );
+        }
+        _;
+    }
+
     modifier willExists(address _testator) {
         require(
             (testatorToWill[_testator].releaseTime != 0 &&
                 testatorToWill[_testator].beneficiaries.length != 0 &&
                 testatorToWill[_testator].beneficiaryOfERC721 != address(0)),
             "Willer: will doesn't exist"
+        );
+        _;
+    }
+
+    modifier sameLengthArrays(address[] calldata beneficiaries_, uint[] calldata shares_) {
+        require(
+            beneficiaries_.length == shares_.length,
+            "Willer: beneficiaries_ and shares_ length mismatch"
         );
         _;
     }
@@ -62,25 +79,15 @@ contract Willer {
     // event NewBeneficiary(address beneficiary);
 
     function addWill(
-        address[] memory beneficiaries_,
-        uint[] memory shares_,
+        address[] calldata beneficiaries_,
+        uint[] calldata shares_,
         address beneficiaryOfERC721_,
         uint releaseTime_
-    ) public {
-        require(
-            beneficiaries_.length == shares_.length,
-            "Willer: beneficiaries_ and shares_ length mismatch"
-        );
+    ) public validBeneficiaries(beneficiaries_) sameLengthArrays(beneficiaries_, shares_){
         require(
             releaseTime_ >= block.timestamp + buffer,
             "Willer: invalid release time"
         );
-
-        for (uint i; i<beneficiaries_.length; i++) {
-            require(
-            beneficiaries_[i] != address(0), "Willer: address zero is not a valid beneficiary"
-            );
-        }
 
         require(
             beneficiaryOfERC721_ != address(0),
@@ -107,7 +114,7 @@ contract Willer {
         public
         view
         returns (
-            address[] memory // calldata?
+            address[] memory 
         )
     {
         return testatorToWill[testator].beneficiaries;
@@ -148,9 +155,9 @@ contract Willer {
     // }
 
     function setNewBeneficiaries(
-        address[] memory newBeneficiaries,
-        uint[] memory newShares
-    ) public willExists(msg.sender) returns (bool) {
+        address[] calldata newBeneficiaries,
+        uint[] calldata newShares
+    ) public willExists(msg.sender) validBeneficiaries(newBeneficiaries) sameLengthArrays(newBeneficiaries, newShares) returns (bool) {
         testatorToWill[msg.sender].beneficiaries = newBeneficiaries;
         testatorToWill[msg.sender].shares = newShares;
         // emit NewBeneficiary(beneficiary);
@@ -195,6 +202,10 @@ contract Willer {
             i++
         ) {
             bequest = balance.mulDiv(testatorToWill[testator].shares[i], testatorToWill[testator].sumShares);
+            // last beneficiary receives bequest and modulo
+            if (i == testatorToWill[testator].beneficiaries.length - 1) {
+                bequest = tokenERC20.balanceOf(testator);
+            }
             tokenERC20.safeTransferFrom(
                 testator,
                 testatorToWill[testator].beneficiaries[i],
@@ -228,7 +239,16 @@ contract Willer {
         // emit ReleasedERC721(testator, beneficiaryOfERC721, tokenERC721);
     }
 
-    // Last beneficiary gets dust =)
+    function batchReleaseERC721(
+        address testator,
+        IERC721[] calldata tokenERC721List,
+        uint[][] calldata tokenIdLists
+    ) external willExists(testator) releasable(testator) {
+        for (uint i = 0; i < tokenERC721List.length; i++) {
+            this.releaseERC721(testator, tokenERC721List[i], tokenIdLists[i]);
+        }
+    }
+
     function releaseERC1155(
         address testator,
         IERC1155 tokenERC1155,
@@ -242,13 +262,10 @@ contract Willer {
             i++
         ) {
             bequest = balance.mulDiv(testatorToWill[testator].shares[i], testatorToWill[testator].sumShares);
-            // if (i == testatorToWill[testator].beneficiaries.length - 1) {
-            //     bequest = tokenERC1155.balanceOf(testator, tokenId);
-            // } else {
-            //     bequest = balance.mul(testatorToWill[testator].shares[i]).div(
-            //         testatorToWill[testator].sumShares
-            //     );
-            // }
+            // last beneficiary receives bequest and modulo
+            if (i == testatorToWill[testator].beneficiaries.length - 1) {
+                bequest = tokenERC1155.balanceOf(testator, tokenId);
+            }
             tokenERC1155.safeTransferFrom(
                 testator,
                 testatorToWill[testator].beneficiaries[i],
@@ -270,31 +287,29 @@ contract Willer {
         }
     }
 
-    // function batchRelease(
-    //     address testator,
-    //     address beneficiary,
-    //     IERC20[] calldata tokenERC20List,
-    //     IERC721[] memory tokenERC721List,
-    //     IERC1155[] memory tokenERC1155List,
-    //     uint[][] memory ERC721tokenIdLists,
-    //     uint[][] memory ERC1155tokenIdLists,
-    //     uint[][] memory valuesLists
-    // ) external {
-    //     this.batchReleaseERC20(testator, beneficiary, tokenERC20List);
-    //     this.batchReleaseERC721(
-    //         testator,
-    //         beneficiary,
-    //         tokenERC721List,
-    //         ERC721tokenIdLists
-    //     );
-    //     this.batchReleaseERC1155(
-    //         testator,
-    //         beneficiary,
-    //         tokenERC1155List,
-    //         ERC1155tokenIdLists,
-    //         valuesLists
-    //     );
-    // }
+    // Needed?
+    function batchRelease(
+        address testator,
+        IERC20[] calldata tokenERC20List,
+        IERC721[] calldata tokenERC721List,
+        IERC1155[] calldata tokenERC1155List,
+        uint[][] calldata ERC721tokenIdLists,
+        uint[][] calldata ERC1155tokenIdLists
+    ) external {
+        this.batchReleaseERC20(testator, tokenERC20List);
+        this.batchReleaseERC721(
+            testator,
+            tokenERC721List,
+            ERC721tokenIdLists
+        );
+        for (uint i=0; i<tokenERC1155List.length; i++) {
+            this.batchReleaseERC1155(
+            testator,
+            tokenERC1155List[i],
+            ERC1155tokenIdLists[i]
+        );
+        }
+    }
 }
 
 //if smth fails, just // it ahah=)

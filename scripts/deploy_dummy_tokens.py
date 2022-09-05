@@ -1,11 +1,10 @@
 from brownie import TokenERC20, TokenERC721, TokenERC1155
 
-from scripts.get_settings import get_settings
-from scripts.get_accounts import get_accounts
+from scripts import get_settings, get_accounts
 
 def main():
-    n_contracts, n_ids, value, publish_source = get_settings()
-    deployer, testator, beneficiary, executor = get_accounts()
+    n_contracts, n_ids, value, publish_source = get_settings.main()
+    deployer, testator, beneficiaries, new_beneficiary, beneficiaryOfERC721, executor = get_accounts.main()
     
     for i in range(n_contracts):
         TokenERC20.deploy(value,

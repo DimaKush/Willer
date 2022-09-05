@@ -39,23 +39,26 @@ def testator(accounts):
 
 
 @pytest.fixture(scope='module')
-def beneficiaries(accounts):
-    yield [accounts[2], accounts[3], accounts[4]]
-
-
-@pytest.fixture(scope='module')
 def new_beneficiary(accounts):
-    yield accounts[5]
+    yield accounts[2]
 
 
 @pytest.fixture(scope='module')
 def beneficiaryOfERC721(accounts):
-    yield accounts[6]
+    yield accounts[3]
 
 
 @pytest.fixture(scope='module')
 def executor(accounts):
-    yield accounts[7]
+    yield accounts[4]
+
+
+@pytest.fixture(scope='module')
+def beneficiaries(accounts):
+    beneficiaries = []
+    for i, n in enumerate(config['settings']['shares']):
+        beneficiaries.append(accounts[i+5])
+    yield beneficiaries
 
 
 @pytest.fixture(scope='module')

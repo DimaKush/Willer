@@ -1,24 +1,13 @@
-import time
-from brownie import TokenERC20, TokenERC721, TokenERC1155, Willer, accounts, config, network
-import datetime
-from ..scripts.get_accounts import get_accounts
-
+from brownie import Willer, TokenERC721, TokenERC20, TokenERC1155
+from scripts import get_settings, get_accounts
 
 def main():
-    n_contracts = config['n_contracts']
-    n_ids = config['n_ids']
-    value = config['value']
-    deployer, testator, beneficiary = get_accounts()
-    time_before_release = Willer[-1].getReleaseTime(testator, beneficiary) - datetime.datetime.timestamp(
-        datetime.datetime.now())
-    if time_before_release > 0:
-        time.sleep(time_before_release)
-
+    n_contracts, n_ids, value, publish_source = get_settings.main()
+    deployer, testator, beneficiaries, new_beneficiary, beneficiaryOfERC721, executor = get_accounts.main()
+    # gasBlockLimit?
     Willer[-1].batchRelease(testator,
-                            beneficiary,
                             list(TokenERC20),
                             list(TokenERC721),
                             list(TokenERC1155),
                             [list(range(n_ids))] * n_contracts,
-                            [list(range(n_ids))] * n_contracts,
-                            [[value] * n_ids] * n_contracts, {"gas_limit": 1000000000})
+                            [list(range(n_ids))] * n_contracts)

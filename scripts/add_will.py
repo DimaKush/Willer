@@ -1,13 +1,12 @@
-import time
-from brownie import Willer, accounts, config, network
+from brownie import Willer, config
 import datetime
-from ..scripts.get_accounts import get_accounts
+import scripts.get_accounts
 
 
 def main():
-    deployer, testator, beneficiary, executor = get_accounts()
-    Willer[-1].addWill(beneficiary,
-                        datetime.datetime.timestamp(datetime.datetime.now() + datetime.timedelta(seconds=10)),
+    deployer, testator, beneficiaries, new_beneficiary, beneficiaryOfERC721, executor = scripts.get_accounts.main()
+    Willer[-1].addWill(beneficiaries, config['settings']['shares'], beneficiaryOfERC721, 
+                        datetime.datetime.timestamp(datetime.datetime.now() + datetime.timedelta(seconds=20)),
                         {'from': testator}
     )
 
