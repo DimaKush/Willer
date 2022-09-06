@@ -24,4 +24,4 @@ settings:
   n_contracts: 3 # for dummy tokens
   n_ids: 5 # for dummy tokens
   value: 48896 # for dummy tokens
-  shares: [4, 55, 87, 98, 83]
+  shares: [4, 5, 7, 9, 3]

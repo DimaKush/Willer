@@ -5,7 +5,7 @@ from brownie.network.state import Chain
 
 
 # Should I separate it in few pb tests?
-@given(shares=strategy('uint[5]', max_value=10))
+# @given(shares=strategy('uint[5]', max_value=10))
 @given(release_time=strategy('uint', min_value=1600000000, max_value=1800000000))
 def test_add_will_valid_release_time(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, release_time, buffer):
     chain = Chain()

@@ -88,9 +88,9 @@ contract Willer {
         // Is it needed to add max value?
         for (uint i; i<shares_.length; i++) {
             require(
-            shares_[i] >= 10, "Willer: shares max value is 10"
+            shares_[i] <= 10, "Willer: shares max value is 10"
             );
-
+        }
         require(
             releaseTime_ >= block.timestamp + buffer,
             "Willer: invalid release time"
