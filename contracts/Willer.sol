@@ -24,8 +24,8 @@ contract Willer {
         uint[] shares;
     }
 
-    uint buffer = 2;
-
+    uint buffer = 10;
+    
     mapping(address => Will) public testatorToWill;
 
     modifier releasable(address _testator) {
