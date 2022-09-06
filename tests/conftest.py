@@ -1,8 +1,7 @@
-import datetime
 from brownie import config
 import pytest
-from datetime import datetime, timedelta
 import time
+
 
 @pytest.fixture(scope='function', autouse=True)
 def setup(fn_isolation):
@@ -71,6 +70,15 @@ def delay():
     yield config['settings']['test_delay']
 
 
+@pytest.fixture(scope='module')
+def release_time(delay):
+    yield time.time() + delay
+
+
+@pytest.fixture(scope='module')
+def buffer():
+    yield 10
+
 @pytest.fixture(scope="module")
 def ERC20_token_contracts(deployer, testator, TokenERC20, n_contracts, value):
     for i in range(n_contracts):
@@ -129,18 +137,18 @@ def batch_approve(testator, ERC20_token_contracts, ERC721_token_contracts, ERC11
 # still don't figure out scopes and autouse 😅
 @pytest.fixture(scope='module', autouse=True)
 def add_will(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
-    release_time = round(datetime.timestamp(datetime.now()) + delay)
+    release_time = round(time.time() + delay)
     willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator})
 
 
 @pytest.fixture(scope='function')
 def extend_release_time(testator, willer_contract, delay):
-    new_release_time = round(datetime.timestamp(datetime.now())) + delay
+    new_release_time = round(time.time() + delay)
     willer_contract.setNewReleaseTime(new_release_time, {'from': testator})
 
 
 @pytest.fixture(scope='function')
 def wait_release_time(willer_contract, testator):
-    time_till_release = round(willer_contract.getReleaseTime(testator) - datetime.timestamp(datetime.now()))
+    time_till_release = round(willer_contract.getReleaseTime(testator) - time.time())
     if time_till_release > 0:
         time.sleep(time_till_release + 2)
