@@ -8,8 +8,21 @@ networks:
   default: development
   development:
     verify: False
+    host: http://127.0.0.1
+    gas_price: 0
+    # persist: false
+    # reverting_tx_gas_limit: 6721975
+    test_rpc:
+        cmd: ganache-cli
+        port: 8545
+        gas_limit: 6721975
+        accounts: 20
+        evm_version: istanbul
+        mnemonic: brownie
+    
   goerli:
     verify: True
+    host: https://goerli.infura.io/v3/$WEB3_INFURA_PROJECT_ID
 
 wallets:
   deployer: ${DEPLOYER_PRIVATE_KEY}
@@ -23,5 +36,6 @@ settings:
   test_delay: 10 # for tests
   n_contracts: 3 # for dummy tokens
   n_ids: 5 # for dummy tokens
-  value: 48896 # for dummy tokens
+  value: 1000000 # for dummy tokens
   shares: [4, 5, 7, 9, 3]
+

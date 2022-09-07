@@ -18,11 +18,6 @@ def test_release_ERC1155_releasable_true(wait_release_time, willer_contract, tes
                 expected_beneficiaries_balances.append(int(testator_balance*i/sum(shares)))
             expected_modulo = testator_balance - sum(expected_beneficiaries_balances)
 
-            print(f'testator_balance: {testator_balance}')
-            print(f'shares: {shares}')
-            print(f'expected_beneficiaries_balances: {expected_beneficiaries_balances}')
-            print(f'expected_modulo: {expected_modulo}')
-
             willer_contract.releaseERC1155(testator, ERC1155_token_contract, id,  {'from': executor})
 
             assert ERC1155_token_contract.balanceOf(testator, id) == 0

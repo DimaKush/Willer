@@ -24,9 +24,10 @@ contract Willer {
         uint[] shares;
     }
 
-    uint buffer = 10;
+    uint BUFFER = 60;
+    uint MAXSHARE = 10;
     
-    mapping(address => Will) public testatorToWill;
+    mapping(address => Will) private testatorToWill; // private?
 
     modifier releasable(address _testator) {
         require(
@@ -44,10 +45,34 @@ contract Willer {
     //     _;
     // }
 
+    modifier validReleaseTime(uint releaseTime_) {
+        require(
+            releaseTime_ >= block.timestamp + BUFFER,
+            "Willer: require( release time < current time + BUFFER )"
+        );
+        _;
+    }
+
+    modifier validBeneficiaryOfERC721(address beneficiaryOfERC721_) {
+        require(
+            beneficiaryOfERC721_ != address(0), "Willer: address zero is not a valid beneficiaryOfERC721"
+            );
+        _;
+    }
+
     modifier validBeneficiaries(address[] calldata beneficiaries_) {
         for (uint i; i<beneficiaries_.length; i++) {
             require(
             beneficiaries_[i] != address(0), "Willer: address zero is not a valid beneficiary"
+            );
+        }
+        _;
+    }
+
+    modifier validShares(uint[] calldata shares_) {
+        for (uint i; i<shares_.length; i++) {
+            require(
+            shares_[i] <= MAXSHARE, "Willer: share can't be greater than MAXSHARE"
             );
         }
         _;
@@ -84,23 +109,12 @@ contract Willer {
         uint[] calldata shares_,
         address beneficiaryOfERC721_,
         uint releaseTime_
-    ) public validBeneficiaries(beneficiaries_) sameLengthArrays(beneficiaries_, shares_){
-        // Is it needed to add max value?
-        for (uint i; i<shares_.length; i++) {
-            require(
-            shares_[i] <= 10, "Willer: shares max value is 10"
-            );
-        }
-        require(
-            releaseTime_ >= block.timestamp + buffer,
-            "Willer: invalid release time"
-        );
-
-        require(
-            beneficiaryOfERC721_ != address(0),
-            "Willer: address zero is not a valid beneficiaryOfERC721"
-        );
-        
+    ) public
+    validBeneficiaries(beneficiaries_)
+    sameLengthArrays(beneficiaries_, shares_)
+    validReleaseTime(releaseTime_)
+    validBeneficiaryOfERC721(beneficiaryOfERC721_) {
+                
         Will storage w = testatorToWill[msg.sender];
         w.beneficiaries = beneficiaries_;
         w.shares = shares_;
@@ -111,6 +125,14 @@ contract Willer {
         for (uint i = 0; i < shares_.length; i++) {
             w.sumShares += shares_[i];
         }
+    }
+
+    function getBuffer() public view returns (uint) {
+        return BUFFER;
+    }
+
+    function getMaxShare() public view returns (uint) {
+        return MAXSHARE;
     }
 
     function getReleaseTime(address testator) public view returns (uint) {
@@ -143,28 +165,17 @@ contract Willer {
         return testatorToWill[_testator].beneficiaryOfERC721;
     }
 
-    // function beforeReleaseTime(address testator)
-    //     public
-    //     view
-    //     returns (uint)
-    // {
-    //     uint beforeRelease = testatorToWill[testator].releaseTime.sub(block.timestamp);
-    //     return beforeRelease;
-    // }
-
-    // function afterReleaseTime(address testator)
-    //     public
-    //     view
-    //     returns (uint)
-    // {
-    //     uint afterRelease = block.timestamp.sub(testatorToWill[testator].releaseTime);
-    //     return afterRelease;
-    // }
+    function timeNow() public returns(uint) {
+        return block.timestamp;
+    }
 
     function setNewBeneficiaries(
         address[] calldata newBeneficiaries,
         uint[] calldata newShares
-    ) public willExists(msg.sender) validBeneficiaries(newBeneficiaries) sameLengthArrays(newBeneficiaries, newShares) returns (bool) {
+    ) public willExists(msg.sender)
+    validBeneficiaries(newBeneficiaries)
+    sameLengthArrays(newBeneficiaries, newShares)
+    validShares(newShares) returns (bool) {
         testatorToWill[msg.sender].beneficiaries = newBeneficiaries;
         testatorToWill[msg.sender].shares = newShares;
         // emit NewBeneficiary(beneficiary);
@@ -174,6 +185,7 @@ contract Willer {
     function setNewReleaseTime(uint newReleaseTime)
         external
         willExists(msg.sender)
+        validReleaseTime(newReleaseTime)
         returns (uint)
     {
         require(newReleaseTime != 0, "Willer: newReleaseTime = 0");
@@ -185,6 +197,7 @@ contract Willer {
     function setNewBeneficiaryOfERC721(address newBeneficiaryOfERC721)
         public
         willExists(msg.sender)
+        validBeneficiaryOfERC721(newBeneficiaryOfERC721)
     {
         testatorToWill[msg.sender].beneficiaryOfERC721 = newBeneficiaryOfERC721;
         // emit NewBeneficiaryOfERC721(beneficiary);

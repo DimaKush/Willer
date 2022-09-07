@@ -16,11 +16,6 @@ def test_release_ERC20_releasable_true(wait_release_time, willer_contract, testa
             expected_beneficiaries_balances.append(int(testator_balance*i/sum(shares)))
         expected_modulo = testator_balance - sum(expected_beneficiaries_balances)
 
-        print(f'testator_balance: {testator_balance}')
-        print(f'shares: {shares}')
-        print(f'expected_beneficiaries_balances: {expected_beneficiaries_balances}')
-        print(f'expected_modulo: {expected_modulo}')
-
         willer_contract.releaseERC20(testator, ERC20_token_contract, {'from': executor})
 
         assert ERC20_token_contract.balanceOf(testator) == 0
