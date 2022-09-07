@@ -1,12 +1,12 @@
 import brownie
 
-def test_batch_release_ERC1155_releasable_false(extend_release_time, willer_contract, testator, executor, ERC1155_token_contracts, n_ids):
+def test_batch_release_ERC1155_releasable_false(add_will, extend_release_time, willer_contract, testator, executor, ERC1155_token_contracts, n_ids):
     for ERC1155_token_contract in ERC1155_token_contracts:
         with brownie.reverts("Willer: unreleasable"):
             willer_contract.batchReleaseERC1155(testator, ERC1155_token_contract, list(range(n_ids)), {'from': executor})
 
 
-def test_batch_release_ERC1155_releasable_true(wait_release_time, willer_contract, testator, executor, shares, ERC1155_token_contracts, n_ids):
+def test_batch_release_ERC1155_releasable_true(add_will, wait_release_time, willer_contract, testator, executor, shares, ERC1155_token_contracts, n_ids):
     expected = {}
     for ERC1155_token_contract in ERC1155_token_contracts:
         for id in range(n_ids):

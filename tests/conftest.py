@@ -136,8 +136,7 @@ def batch_approve(testator, ERC20_token_contracts, ERC721_token_contracts, ERC11
         i.setApprovalForAll(willer_contract.address, True, {'from': testator})
 
 
-# still don't figure out scopes and autouse 😅
-@pytest.fixture(scope='module', autouse=True)
+@pytest.fixture(scope='function')
 def add_will(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
     release_time = round(time.time() + willer_contract.getBuffer() + delay)
     willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator})
