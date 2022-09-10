@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.16;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+
 
 /**
  * @title Willer
@@ -27,7 +28,7 @@ contract Willer {
     uint BUFFER = 60;
     uint MAXSHARE = 10;
     
-    mapping(address => Will) private testatorToWill; // private?
+    mapping(address => Will) private testatorToWill;
 
     modifier releasable(address _testator) {
         require(
@@ -60,10 +61,24 @@ contract Willer {
         _;
     }
 
-    modifier validBeneficiaries(address[] calldata beneficiaries_) {
+    modifier validBeneficiariesAndShares(address[] calldata beneficiaries_, uint[] calldata shares_, address testator_) {
+        require(
+            beneficiaries_.length == shares_.length,
+            "Willer: beneficiaries_ and shares_ length mismatch"
+        );
+
         for (uint i; i<beneficiaries_.length; i++) {
             require(
             beneficiaries_[i] != address(0), "Willer: address zero is not a valid beneficiary"
+            );
+            require(
+            beneficiaries_[i] != testator_, "Willer: testator is not a valid beneficiary"
+            );
+            require(
+            shares_[i] <= MAXSHARE, "Willer: share can't be greater than MAXSHARE"
+            );
+            require(
+            shares_[i] != 0, "Willer: share can't be 0"
             );
         }
         _;
@@ -73,6 +88,9 @@ contract Willer {
         for (uint i; i<shares_.length; i++) {
             require(
             shares_[i] <= MAXSHARE, "Willer: share can't be greater than MAXSHARE"
+            );
+            require(
+            shares_[i] != 0, "Willer: share can't be 0"
             );
         }
         _;
@@ -109,11 +127,11 @@ contract Willer {
         uint[] calldata shares_,
         address beneficiaryOfERC721_,
         uint releaseTime_
-    ) public
-    validBeneficiaries(beneficiaries_)
-    sameLengthArrays(beneficiaries_, shares_)
+    ) public 
+    validBeneficiariesAndShares(beneficiaries_, shares_, msg.sender)
     validReleaseTime(releaseTime_)
-    validBeneficiaryOfERC721(beneficiaryOfERC721_) {
+    validBeneficiaryOfERC721(beneficiaryOfERC721_)
+    validShares(shares_) {
                 
         Will storage w = testatorToWill[msg.sender];
         w.beneficiaries = beneficiaries_;
@@ -165,7 +183,7 @@ contract Willer {
         return testatorToWill[_testator].beneficiaryOfERC721;
     }
 
-    function timeNow() public returns(uint) {
+    function timeNow() public view returns(uint) {
         return block.timestamp;
     }
 
@@ -173,9 +191,7 @@ contract Willer {
         address[] calldata newBeneficiaries,
         uint[] calldata newShares
     ) public willExists(msg.sender)
-    validBeneficiaries(newBeneficiaries)
-    sameLengthArrays(newBeneficiaries, newShares)
-    validShares(newShares) returns (bool) {
+    validBeneficiariesAndShares(newBeneficiaries, newShares, msg.sender) returns (bool) {
         testatorToWill[msg.sender].beneficiaries = newBeneficiaries;
         testatorToWill[msg.sender].shares = newShares;
         // emit NewBeneficiary(beneficiary);
@@ -307,7 +323,6 @@ contract Willer {
         }
     }
 
-    // Needed?
     function batchRelease(
         address testator,
         IERC20[] calldata tokenERC20List,
@@ -332,4 +347,3 @@ contract Willer {
     }
 }
 
-//if smth fails, just // it ahah=)

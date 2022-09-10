@@ -19,12 +19,26 @@ def test_add_will_valid_release_time(testator, beneficiaries, shares, beneficiar
              willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator})
 
 
-@given(beneficiaries=strategy('address[5]'))
-@given(shares=strategy('uint[5]', max_value=10))
-def test_add_will_valid_beneficiaries(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
+@given(shares=strategy('uint[5]', max_value=10, min_value=1))
+def test_add_will_valid_shares(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
     chain = Chain()
     assert willer_contract.getReleaseTime(testator) == 0
     assert willer_contract.getBeneficiaries(testator) == []
+    assert willer_contract.getShares(testator) == []
     release_time = chain.time() + willer_contract.getBuffer() + delay
-    willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator})
+    willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator}) 
+    assert willer_contract.getReleaseTime(testator) == release_time
     assert willer_contract.getBeneficiaries(testator) == beneficiaries
+    assert willer_contract.getShares(testator) == shares
+
+
+@given(shares=strategy('uint[5]', exclude=list(range(1, 11))))
+def test_add_will_invalid_shares(testator, beneficiaries, shares, beneficiaryOfERC721, willer_contract, delay):
+    chain = Chain()
+    assert willer_contract.getReleaseTime(testator) == 0
+    assert willer_contract.getBeneficiaries(testator) == []
+    assert willer_contract.getShares(testator) == []
+    release_time = chain.time() + willer_contract.getBuffer() + delay
+    with brownie.reverts():
+        willer_contract.addWill(beneficiaries, shares, beneficiaryOfERC721, release_time, {'from': testator}) 
+
