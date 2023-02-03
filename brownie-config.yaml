@@ -1,9 +1,16 @@
+# change the build directory to be within react's scope
+project_structure:
+  build: client/src/artifacts
+dev_deployment_artifacts: True
+
 autofetch_sources: True
 dotenv: .env
 compiler:
   solc:
     remappings:
-      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.7.3"
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.8.1"
+dependencies:
+    - OpenZeppelin/openzeppelin-contracts@4.8.1
 networks:
   default: development
   development:
@@ -19,10 +26,11 @@ networks:
         accounts: 20
         evm_version: istanbul
         mnemonic: brownie
-    
+  mainnet-fork:
+    verify: False
   goerli:
     verify: True
-    host: https://goerli.infura.io/v3/$WEB3_INFURA_PROJECT_ID
+    host: https://goerli.infura.io/v3/${WEB3_INFURA_PROJECT_ID}
 
 wallets:
   deployer: ${DEPLOYER_PRIVATE_KEY}
@@ -34,8 +42,10 @@ wallets:
 settings:
   delay: 100 # in seconds
   test_delay: 10 # for tests
-  n_contracts: 3 # for dummy tokens
-  n_ids: 5 # for dummy tokens
-  value: 1000000 # for dummy tokens
-  shares: [4, 5, 7, 9, 3]
+  n_contracts: 1 # for dummy tokens
+  n_ids: 2 # for dummy tokens
+  value: 1_000_000_000_000_000_000_000_000_000_000_000 # for dummy tokens
+  shares: [1, 2, 8, 4, 8]
+  ERC721URI: 'ipfs://Qmb27AQen3zEPvLc8LUfUP417bicmBRVhHkUcDnyGM71x4?filename=ERC721W.json'
+  ERC1155URI: 'ipfs://QmSS8zviNGmPripVTYTxGj7jKmHoe7M98Py4atsS6uWzAL?filename=ERC1155W.json'
 

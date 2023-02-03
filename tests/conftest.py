@@ -111,6 +111,7 @@ def ERC721_token_contracts(deployer, testator, TokenERC721, n_contracts, n_ids):
 def ERC1155_token_contracts(deployer, testator, TokenERC1155, value, n_contracts, n_ids):
     for i in range(n_contracts):
         deployed_contract = TokenERC1155.deploy(
+            "someName",
             f"https://somelink.xyz/ERC1155_{i}",
             {'from': deployer}
         )
@@ -152,6 +153,13 @@ def extend_release_time(testator, willer_contract, delay):
 def wait_release_time(willer_contract, testator):
     chain = Chain()
     release_time = willer_contract.getReleaseTime(testator)
-
     if chain.time() < release_time:
         chain.sleep(release_time - chain.time() + 1)
+
+
+@pytest.fixture(scope='function')
+def wait_release_to_treasury_time(willer_contract, testator):
+    chain = Chain()
+    release_to_treasury_time = willer_contract.getReleaseTime(testator) + willer_contract.getReapDelay()
+    if chain.time() < release_to_treasury_time:
+        chain.sleep(release_to_treasury_time - chain.time() + 1)

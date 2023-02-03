@@ -1,6 +1,7 @@
 from brownie.test import given, strategy
 import brownie
 from brownie.network.state import Chain
+from brownie import config
 
 
 @given(release_time=strategy('uint', min_value=1600000000, max_value=1800000000))

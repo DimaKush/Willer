@@ -3,9 +3,7 @@
 Willer is used as a testamentary notary: entrust your ERC20, ERC721 or ERC1155 tokens to Willer smart contract, make the will setting up beneficiaries addresses, shares and release time, then try not to lose your private key=)
 The testator must extend release time to prove his access to private key. When the release time  expires, beneficiaries are able to call release function to perform the bequest of the tokens.
 
-Welcome to my messed code and failing tests =)
-
-Also see [SimpleWill](https://github.com/DimaKush/SimpleWill), basic version of Willer functionality
+[Live on Goerli Testnet](https://willer-ui.vercel.app)
 
 ## Installation
 
@@ -73,3 +71,24 @@ brownie test
 ## License
 
 Distributed under the [MIT License](https://github.com/DimaKush/Willer/blob/master/LICENSE)
+
+## Resources
+[Faucet] (https://faucet.paradigm.xyz/)
+
+[Brownie documentation](https://eth-brownie.readthedocs.io/en/stable/)
+
+["Getting Started with Brownie"](https://medium.com/@iamdefinitelyahuman/getting-started-with-brownie-part-1-9b2181f4cb99)
+
+[Patrick Collins](https://twitter.com/PatrickAlphaC) tutorial on [youtube](https://www.youtube.com/watch?v=M576WGiDBdQ&t=43350s)
+
+[Brownie Mixes](https://github.com/brownie-mix)
+
+[OpenZeppelin docs](https://docs.openzeppelin.com/)
+
+[RainbowKit](https://www.rainbowkit.com/)
+
+[Ethereum boilerplate](https://github.com/ethereum-boilerplate/ethereum-boilerplate) 
+
+[Chakra-ui](https://chakra-ui.com)
+
+[Wagmi](https://wagmi.sh/)

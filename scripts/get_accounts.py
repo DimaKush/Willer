@@ -16,10 +16,10 @@ def main():
             # change
             deployer = accounts.add(config['wallets']['deployer'])
             testator = accounts.add(config['wallets']['testator'])            
-            new_beneficiary = deployer
+            new_beneficiary = accounts.add(config['wallets']['new_beneficiary'])     
             beneficiaryOfERC721 = accounts.add(config['wallets']['beneficiaryOfERC721'])
-            executor = deployer
-            beneficiaries = [deployer, beneficiaryOfERC721, executor]
+            executor = accounts.add(config['wallets']['executor'])
+            beneficiaries = [new_beneficiary, beneficiaryOfERC721, executor]
         except FileNotFoundError as error:
             print(error, '.env file not found')
 

@@ -6,3 +6,4 @@ build/
 reports/
 dev/
 .pytest_cache
+old/

@@ -20,7 +20,7 @@ def main():
             publish_source=publish_source
         )
         TokenERC1155.deploy(
-            f"https://somelink.eth.link/ERC1155_{i}.json",
+            f"Test_{i}",
             {'from': deployer},
             publish_source=publish_source)
 

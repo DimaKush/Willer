@@ -6,14 +6,15 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title Willer
  * @author DimaKush
  *
  */
-contract Willer {
+contract Willer is Ownable, ReentrancyGuard {
     using Math for uint;
     using SafeERC20 for IERC20;
 
@@ -26,8 +27,11 @@ contract Willer {
     }
 
     uint BUFFER = 60;
+    uint MIN_BUFFER = 60;
     uint MAXSHARE = 10;
-    
+    uint REAP_DELAY = 500000000; //
+    address treasuryAddress = address(this);
+
     mapping(address => Will) private testatorToWill;
 
     modifier releasable(address _testator) {
@@ -38,60 +42,66 @@ contract Willer {
         _;
     }
 
-    // modifier releasableToTreasury(uint _releaseTime) {
-    //     require(
-    //         block.timestamp >= _releaseTime,
-    //         "Willer: Too early"
-    //     );
-    //     _;
-    // }
+    modifier releasableToTreasury(address _testator) {
+        require(
+            block.timestamp >=
+                testatorToWill[_testator].releaseTime + REAP_DELAY,
+            "Willer: Too early to reap"
+        );
+        _;
+    }
 
     modifier validReleaseTime(uint releaseTime_) {
         require(
             releaseTime_ >= block.timestamp + BUFFER,
-            "Willer: require( release time < current time + BUFFER )"
+            "Willer: require( release time > current time + BUFFER )"
         );
         _;
     }
 
     modifier validBeneficiaryOfERC721(address beneficiaryOfERC721_) {
         require(
-            beneficiaryOfERC721_ != address(0), "Willer: address zero is not a valid beneficiaryOfERC721"
-            );
+            beneficiaryOfERC721_ != address(0),
+            "Willer: address zero is not a valid beneficiaryOfERC721"
+        );
         _;
     }
 
-    modifier validBeneficiariesAndShares(address[] calldata beneficiaries_, uint[] calldata shares_, address testator_) {
+    modifier validBeneficiariesAndShares(
+        address[] calldata beneficiaries_,
+        uint[] calldata shares_,
+        address testator_
+    ) {
         require(
             beneficiaries_.length == shares_.length,
             "Willer: beneficiaries_ and shares_ length mismatch"
         );
 
-        for (uint i; i<beneficiaries_.length; i++) {
+        for (uint i; i < beneficiaries_.length; i++) {
             require(
-            beneficiaries_[i] != address(0), "Willer: address zero is not a valid beneficiary"
+                beneficiaries_[i] != address(0),
+                "Willer: address zero is not a valid beneficiary"
             );
             require(
-            beneficiaries_[i] != testator_, "Willer: testator is not a valid beneficiary"
+                beneficiaries_[i] != testator_,
+                "Willer: testator is not a valid beneficiary"
             );
             require(
-            shares_[i] <= MAXSHARE, "Willer: share can't be greater than MAXSHARE"
+                shares_[i] <= MAXSHARE,
+                "Willer: share can't be greater than MAXSHARE"
             );
-            require(
-            shares_[i] != 0, "Willer: share can't be 0"
-            );
+            require(shares_[i] != 0, "Willer: share can't be 0");
         }
         _;
     }
 
     modifier validShares(uint[] calldata shares_) {
-        for (uint i; i<shares_.length; i++) {
+        for (uint i; i < shares_.length; i++) {
             require(
-            shares_[i] <= MAXSHARE, "Willer: share can't be greater than MAXSHARE"
+                shares_[i] <= MAXSHARE,
+                "Willer: share can't be greater than MAXSHARE"
             );
-            require(
-            shares_[i] != 0, "Willer: share can't be 0"
-            );
+            require(shares_[i] >= 0, "Willer: share can't be 0");
         }
         _;
     }
@@ -106,7 +116,10 @@ contract Willer {
         _;
     }
 
-    modifier sameLengthArrays(address[] calldata beneficiaries_, uint[] calldata shares_) {
+    modifier sameLengthArrays(
+        address[] calldata beneficiaries_,
+        uint[] calldata shares_
+    ) {
         require(
             beneficiaries_.length == shares_.length,
             "Willer: beneficiaries_ and shares_ length mismatch"
@@ -121,18 +134,37 @@ contract Willer {
     // event NewReleaseTime(uint releaseTime);
     // event NewBeneficiary(address beneficiary);
 
+    modifier executorIsBeneficiary(address _testator) {
+        bool _executorIsBeneficiary = false;
+        for (
+            uint i = 0;
+            i < testatorToWill[_testator].beneficiaries.length;
+            i++
+        ) {
+            if (msg.sender == testatorToWill[_testator].beneficiaries[i]) {
+                _executorIsBeneficiary = true;
+            }
+        }
+        if (msg.sender == testatorToWill[_testator].beneficiaryOfERC721) {
+            _executorIsBeneficiary = true;
+        }
+
+        require(_executorIsBeneficiary, "Willer: executor is not beneficiary");
+        _;
+    }
 
     function addWill(
         address[] calldata beneficiaries_,
         uint[] calldata shares_,
         address beneficiaryOfERC721_,
         uint releaseTime_
-    ) public 
-    validBeneficiariesAndShares(beneficiaries_, shares_, msg.sender)
-    validReleaseTime(releaseTime_)
-    validBeneficiaryOfERC721(beneficiaryOfERC721_)
-    validShares(shares_) {
-                
+    )
+        public
+        validBeneficiariesAndShares(beneficiaries_, shares_, msg.sender)
+        validReleaseTime(releaseTime_)
+        validBeneficiaryOfERC721(beneficiaryOfERC721_)
+        validShares(shares_)
+    {
         Will storage w = testatorToWill[msg.sender];
         w.beneficiaries = beneficiaries_;
         w.shares = shares_;
@@ -149,6 +181,10 @@ contract Willer {
         return BUFFER;
     }
 
+    function getReapDelay() public view returns (uint) {
+        return REAP_DELAY;
+    }
+
     function getMaxShare() public view returns (uint) {
         return MAXSHARE;
     }
@@ -157,13 +193,9 @@ contract Willer {
         return testatorToWill[testator].releaseTime;
     }
 
-    function getBeneficiaries(address testator)
-        public
-        view
-        returns (
-            address[] memory 
-        )
-    {
+    function getBeneficiaries(
+        address testator
+    ) public view returns (address[] memory) {
         return testatorToWill[testator].beneficiaries;
     }
 
@@ -175,42 +207,47 @@ contract Willer {
         return testatorToWill[testator].sumShares;
     }
 
-    function getBeneficiaryOfERC721(address _testator)
-        public
-        view
-        returns (address beneficiaryOfERC721)
-    {
+    function getBeneficiaryOfERC721(
+        address _testator
+    ) public view returns (address beneficiaryOfERC721) {
         return testatorToWill[_testator].beneficiaryOfERC721;
     }
 
-    function timeNow() public view returns(uint) {
-        return block.timestamp;
-    }
+    // function timeNow() public view returns(uint) {
+    //     return block.timestamp;
+    // }
 
     function setNewBeneficiaries(
         address[] calldata newBeneficiaries,
         uint[] calldata newShares
-    ) public willExists(msg.sender)
-    validBeneficiariesAndShares(newBeneficiaries, newShares, msg.sender) returns (bool) {
+    )
+        public
+        willExists(msg.sender)
+        validBeneficiariesAndShares(newBeneficiaries, newShares, msg.sender)
+        returns (bool)
+    {
         testatorToWill[msg.sender].beneficiaries = newBeneficiaries;
         testatorToWill[msg.sender].shares = newShares;
         // emit NewBeneficiary(beneficiary);
         return true;
     }
 
-    function setNewReleaseTime(uint newReleaseTime)
+    function setNewReleaseTime(
+        uint newReleaseTime
+    )
         external
         willExists(msg.sender)
         validReleaseTime(newReleaseTime)
         returns (uint)
     {
-        require(newReleaseTime != 0, "Willer: newReleaseTime = 0");
         testatorToWill[msg.sender].releaseTime = newReleaseTime;
         // emit NewReleaseTime(testatorToWill[msg.sender]);
         return testatorToWill[msg.sender].releaseTime;
     }
 
-    function setNewBeneficiaryOfERC721(address newBeneficiaryOfERC721)
+    function setNewBeneficiaryOfERC721(
+        address newBeneficiaryOfERC721
+    )
         public
         willExists(msg.sender)
         validBeneficiaryOfERC721(newBeneficiaryOfERC721)
@@ -219,11 +256,25 @@ contract Willer {
         // emit NewBeneficiaryOfERC721(beneficiary);
     }
 
-    function releaseERC20(address testator, IERC20 tokenERC20)
-        public
-        willExists(testator)
-        releasable(testator)
-    {
+    function releaseERC20ToTreasury(
+        address testator,
+        IERC20 tokenERC20
+    ) private {
+        uint balance = tokenERC20.balanceOf(testator);
+        uint bequest = 0;
+        require(balance != 0, "Willer: No ERC20 tokens to release");
+        uint allowed = tokenERC20.allowance(testator, address(this));
+        require(allowed != 0, "Willer: ERC20 zero allowance");
+        if (allowed < balance) {
+            balance = allowed;
+        }
+        tokenERC20.safeTransferFrom(testator, treasuryAddress, balance);
+    }
+
+    function releaseERC20(
+        address testator,
+        IERC20 tokenERC20 // executorIsBeneficiary(testator)
+    ) private {
         uint balance = tokenERC20.balanceOf(testator);
         uint bequest = 0;
         require(balance != 0, "Willer: No ERC20 tokens to release");
@@ -237,7 +288,10 @@ contract Willer {
             i < testatorToWill[testator].beneficiaries.length;
             i++
         ) {
-            bequest = balance.mulDiv(testatorToWill[testator].shares[i], testatorToWill[testator].sumShares);
+            bequest = balance.mulDiv(
+                testatorToWill[testator].shares[i],
+                testatorToWill[testator].sumShares
+            );
             // last beneficiary receives bequest and modulo
             if (i == testatorToWill[testator].beneficiaries.length - 1) {
                 bequest = tokenERC20.balanceOf(testator);
@@ -254,9 +308,29 @@ contract Willer {
     function batchReleaseERC20(
         address testator,
         IERC20[] calldata tokenERC20List
-    ) external willExists(testator) releasable(testator) {
+    )
+        external
+        willExists(testator)
+        releasable(testator)
+        executorIsBeneficiary(testator)
+        nonReentrant()
+    {
         for (uint i = 0; i < tokenERC20List.length; i++) {
-            this.releaseERC20(testator, tokenERC20List[i]);
+            releaseERC20(testator, tokenERC20List[i]);
+        }
+    }
+
+    function batchReleaseERC20ToTreasury(
+        address testator,
+        IERC20[] calldata tokenERC20List
+    )
+        external
+        willExists(testator)
+        releasableToTreasury(testator)
+        nonReentrant()
+    {
+        for (uint i = 0; i < tokenERC20List.length; i++) {
+            releaseERC20ToTreasury(testator, tokenERC20List[i]);
         }
     }
 
@@ -264,7 +338,9 @@ contract Willer {
         address testator,
         IERC721 tokenERC721,
         uint[] calldata tokenIdList
-    ) external willExists(testator) releasable(testator) {
+    )
+        private
+    {
         for (uint i = 0; i < tokenIdList.length; i++) {
             tokenERC721.safeTransferFrom(
                 testator,
@@ -275,13 +351,52 @@ contract Willer {
         // emit ReleasedERC721(testator, beneficiaryOfERC721, tokenERC721);
     }
 
+    function releaseERC721ToTreasury(
+        address testator,
+        IERC721 tokenERC721,
+        uint[] calldata tokenIdList
+    ) private {
+        for (uint i = 0; i < tokenIdList.length; i++) {
+            tokenERC721.safeTransferFrom(
+                testator,
+                treasuryAddress,
+                tokenIdList[i]
+            );
+        }
+        // emit ReleasedERC721(testator, beneficiaryOfERC721, tokenERC721);
+    }
+
     function batchReleaseERC721(
         address testator,
         IERC721[] calldata tokenERC721List,
         uint[][] calldata tokenIdLists
-    ) external willExists(testator) releasable(testator) {
+    )
+        external
+        willExists(testator)
+        releasable(testator)
+        executorIsBeneficiary(testator)
+        nonReentrant()
+    {
         for (uint i = 0; i < tokenERC721List.length; i++) {
-            this.releaseERC721(testator, tokenERC721List[i], tokenIdLists[i]);
+            releaseERC721(testator, tokenERC721List[i], tokenIdLists[i]);
+        }
+    }
+
+    function batchReleaseERC721ToTreasury(
+        address testator,
+        IERC721[] calldata tokenERC721List,
+        uint[][] calldata tokenIdLists
+    ) external 
+    willExists(testator) 
+    releasableToTreasury(testator)
+    nonReentrant()
+    {
+        for (uint i = 0; i < tokenERC721List.length; i++) {
+            releaseERC721ToTreasury(
+                testator,
+                tokenERC721List[i],
+                tokenIdLists[i]
+            );
         }
     }
 
@@ -289,7 +404,9 @@ contract Willer {
         address testator,
         IERC1155 tokenERC1155,
         uint tokenId
-    ) external willExists(testator) releasable(testator) {
+    )
+        internal
+    {
         uint balance = tokenERC1155.balanceOf(testator, tokenId);
         uint bequest = 0;
         for (
@@ -297,7 +414,10 @@ contract Willer {
             i < testatorToWill[testator].beneficiaries.length;
             i++
         ) {
-            bequest = balance.mulDiv(testatorToWill[testator].shares[i], testatorToWill[testator].sumShares);
+            bequest = balance.mulDiv(
+                testatorToWill[testator].shares[i],
+                testatorToWill[testator].sumShares
+            );
             // last beneficiary receives bequest and modulo
             if (i == testatorToWill[testator].beneficiaries.length - 1) {
                 bequest = tokenERC1155.balanceOf(testator, tokenId);
@@ -313,13 +433,68 @@ contract Willer {
         // emit ReleasedERC1155(testator, beneficiary, address(tokenERC1155));
     }
 
+    function releaseERC1155ToTreasury(
+        address testator,
+        IERC1155 tokenERC1155,
+        uint tokenId
+    ) private {
+        uint balance = tokenERC1155.balanceOf(testator, tokenId);
+        uint bequest = 0;
+        for (
+            uint i = 0;
+            i < testatorToWill[testator].beneficiaries.length;
+            i++
+        ) {
+            bequest = balance.mulDiv(
+                testatorToWill[testator].shares[i],
+                testatorToWill[testator].sumShares
+            );
+            // last beneficiary receives bequest and modulo
+            if (i == testatorToWill[testator].beneficiaries.length - 1) {
+                bequest = tokenERC1155.balanceOf(testator, tokenId);
+            }
+            tokenERC1155.safeTransferFrom(
+                testator,
+                treasuryAddress,
+                tokenId,
+                bequest,
+                bytes("")
+            );
+        }
+        // emit ReleasedERC1155(testator, beneficiary, address(tokenERC1155));
+    }
+
     function batchReleaseERC1155(
         address testator,
         IERC1155 tokenERC1155,
         uint[] calldata tokenIdLists
-    ) external {
+    )
+        external
+        willExists(testator)
+        releasable(testator)
+        executorIsBeneficiary(testator)
+        nonReentrant()
+    {
         for (uint i = 0; i < tokenIdLists.length; i++) {
-            this.releaseERC1155(testator, tokenERC1155, tokenIdLists[i]);
+            releaseERC1155(testator, tokenERC1155, tokenIdLists[i]);
+        }
+    }
+
+    function batchReleaseERC1155ToTreasury(
+        address testator,
+        IERC1155 tokenERC1155,
+        uint[] calldata tokenIdLists
+    ) external 
+    willExists(testator) 
+    releasableToTreasury(testator) 
+    nonReentrant()
+    {
+        for (uint i = 0; i < tokenIdLists.length; i++) {
+            releaseERC1155ToTreasury(
+                testator,
+                tokenERC1155,
+                tokenIdLists[i]
+            );
         }
     }
 
@@ -332,18 +507,44 @@ contract Willer {
         uint[][] calldata ERC1155tokenIdLists
     ) external {
         this.batchReleaseERC20(testator, tokenERC20List);
-        this.batchReleaseERC721(
+        this.batchReleaseERC721(testator, tokenERC721List, ERC721tokenIdLists);
+        for (uint i = 0; i < tokenERC1155List.length; i++) {
+            this.batchReleaseERC1155(
+                testator,
+                tokenERC1155List[i],
+                ERC1155tokenIdLists[i]
+            );
+        }
+    }
+
+    function batchReleaseToTreasury(
+        address testator,
+        IERC20[] calldata tokenERC20List,
+        IERC721[] calldata tokenERC721List,
+        IERC1155[] calldata tokenERC1155List,
+        uint[][] calldata ERC721tokenIdLists,
+        uint[][] calldata ERC1155tokenIdLists
+    ) external willExists(testator) releasableToTreasury(testator) {
+        this.batchReleaseERC20ToTreasury(testator, tokenERC20List);
+        this.batchReleaseERC721ToTreasury(
             testator,
             tokenERC721List,
             ERC721tokenIdLists
         );
-        for (uint i=0; i<tokenERC1155List.length; i++) {
-            this.batchReleaseERC1155(
-            testator,
-            tokenERC1155List[i],
-            ERC1155tokenIdLists[i]
-        );
+        for (uint i = 0; i < tokenERC1155List.length; i++) {
+            this.batchReleaseERC1155ToTreasury(
+                testator,
+                tokenERC1155List[i],
+                ERC1155tokenIdLists[i]
+            );
         }
     }
-}
 
+    function setTreasuryAddress(address _treasuryAddress) public onlyOwner {
+        treasuryAddress = _treasuryAddress;
+    }
+
+    function getTreasuryAddress() public view returns (address) {
+        return treasuryAddress;
+    }
+}

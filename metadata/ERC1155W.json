@@ -1,0 +1,11 @@
+{
+    "name": "ERC1155W",
+    "description": "W",
+    "image": "ipfs://QmSmce4WfEroZr2JctbfZeiXNcvM58AwNKYJyshux81TGH?filename=20211231_190209.jpg",
+    "attributes": [
+        {
+            "trait_type": "1",
+            "value": 100
+        }
+    ]
+}

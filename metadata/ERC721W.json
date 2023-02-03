@@ -1,0 +1,11 @@
+{
+    "name": "ERC721W",
+    "description": "W",
+    "image": "ipfs://Qmf7VNoB52ngDMfehjZDnojVfbDmrMqgQQFfZS2V12VdXk?filename=IMG_20210214_185956.jpg",
+    "attributes": [
+        {
+            "trait_type": "1",
+            "value": 100
+        }
+    ]
+}
