@@ -66,7 +66,7 @@ const Will: FC<Balances> = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const hoverTrColor = useColorModeValue('gray.100', 'gray.700');
   const will = useWiller(props.testatorAddress)
-  useEffect(() => setUserIsBeneficiary((account.address && will.beneficiaries && will.beneficiaries.includes(account.address)) || (account.address === will.beneficiaryOfERC721) || 1===1), [account.address, router.asPath])
+  useEffect(() => setUserIsBeneficiary((account.address && will.beneficiaries && will.beneficiaries.includes(account.address)) || (account.address === will.beneficiaryOfERC721)), [account.address, router.asPath])
   if (userIsTestator === undefined) { return <Spinner /> }
   if (!will.beneficiaries?.length || !will.releaseTime || !will.beneficiaryOfERC721) {
     return (

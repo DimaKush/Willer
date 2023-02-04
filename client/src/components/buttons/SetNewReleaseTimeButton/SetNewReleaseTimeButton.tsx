@@ -1,4 +1,4 @@
-import { AccordionButton, Button, Radio, RadioGroup, VStack } from '@chakra-ui/react'
+import { Button, Radio, RadioGroup, VStack } from '@chakra-ui/react'
 import { useState } from 'react'
 import { useAccount, useContractWrite, usePrepareContractWrite } from 'wagmi'
 import { willerContract } from '../../Interfaces/Interfaces'
@@ -23,7 +23,7 @@ const SetNewReleaseTimeButton = () => {
         }
     })
 
-    const { data, write , status} = useContractWrite(config)
+    const { write } = useContractWrite(config)
     return (
         <VStack alignItems={'center'}>
             <Button disabled={!write} onClick={() => write?.()}>

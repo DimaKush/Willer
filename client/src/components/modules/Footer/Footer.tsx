@@ -1,14 +1,9 @@
-import { Button, Center, Flex, HStack, IconButton, Link, useTheme, VStack } from '@chakra-ui/react';
-import { DripButton } from 'components/buttons/DripButton';
-import { ExecuteForm } from 'components/forms/ExecuteForm';
-import { WrapEthField } from 'components/forms/WrapEthField';
-import { EtherscanIcon, GitcoinIcon, WillerIcon } from 'components/icons';
+import { Flex, HStack, Link, useTheme, VStack } from '@chakra-ui/react';
+import { EtherscanIcon, GitcoinIcon } from 'components/icons';
 import { DiscordIcon } from 'components/icons/DiscordIcon';
 import { GithubIcon } from 'components/icons/GithubIcon';
 import TwitterIcon from 'components/icons/TwitterIcon/TwitterIcon';
 import { willerContract } from 'components/Interfaces';
-import { useRouter } from 'next/router';
-import { useAccount } from 'wagmi';
 
 const links = {
   github: 'https://github.com/DimaKush/Willer',

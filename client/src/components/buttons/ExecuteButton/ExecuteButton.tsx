@@ -1,7 +1,6 @@
 import { Button, Tooltip } from '@chakra-ui/react'
 import { willerContract } from 'components/Interfaces'
 import { ethers } from 'ethers'
-
 import { useRouter } from 'next/router'
 import type { FC } from 'react'
 import { useContractWrite, usePrepareContractWrite } from 'wagmi'
@@ -53,7 +52,6 @@ type Erc20Value =
     }
 
 const ExecuteButton: FC<Balances> = ({tokenBalances, nftBalances, testatorAddress}) => {
-    const router = useRouter()
     const getListsForBatchRelease = (approvedTokenList: TNFTBalance[]) => {
         const tokenList = new Array()
         const tokenIdLists = new Array()

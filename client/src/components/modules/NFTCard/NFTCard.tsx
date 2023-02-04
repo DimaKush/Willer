@@ -3,13 +3,11 @@ import { Box, HStack, Image, Link, SimpleGrid, Spinner, Text, useColorModeValue 
 import { ERC721ApproveButton } from 'components/buttons';
 import { useSession } from 'next-auth/react';
 import type { FC } from "react";
-import { useEffect, useState } from 'react';
 import { getEllipsisTxt } from 'utils/format';
 import { resolveIPFS } from 'utils/resolveIPFS';
-import { useAccount } from 'wagmi';
 import { INFTCard } from './types';
 
-const NFTCard: FC<INFTCard> = ({ amount, contractType, name, metadata, tokenAddress, tokenId, ownerOf, testatorAddress }) => {
+const NFTCard: FC<INFTCard> = ({ amount, contractType, name, metadata, tokenAddress, tokenId, testatorAddress }) => {
   const descBgColor = useColorModeValue('gray.200', 'gray.600')
   const session = useSession()
   if (session.status === "loading") {return <Spinner/>}

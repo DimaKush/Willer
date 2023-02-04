@@ -1,7 +1,5 @@
 import { Box, Center, Heading, Link, List, ListItem, Text, VStack } from '@chakra-ui/react'
-import { useRouter } from 'next/router'
 import type { FC } from 'react'
-import { useAccount } from 'wagmi'
 
 const About: FC = () => {
   return (
