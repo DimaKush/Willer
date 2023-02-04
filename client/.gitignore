@@ -12,8 +12,6 @@
 /.next/
 /out/
 
-# artifacts
-/client/artifacts
 
 # misc
 .DS_Store
