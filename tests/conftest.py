@@ -54,6 +54,7 @@ def executor(accounts):
     yield accounts[4]
 
 
+
 @pytest.fixture(scope='module')
 def beneficiaries(accounts):
     beneficiaries = []
@@ -126,6 +127,10 @@ def willer_contract(deployer, Willer):
         {'from': deployer}
     )
 
+@pytest.fixture(scope='module')
+def treasury(willer_contract, deployer):
+    willer_contract.setTreasuryAddress(deployer, {'from': deployer})
+    yield deployer
 
 @pytest.fixture(scope="module", autouse=True)
 def batch_approve(testator, ERC20_token_contracts, ERC721_token_contracts, ERC1155_token_contracts, willer_contract, value):

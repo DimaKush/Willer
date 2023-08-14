@@ -28,7 +28,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (!context.params?.testatorAddress) {
         return { props: { error: 'Connect wallet' } }
     }
-
+    
     const tokenBalances = await Moralis.EvmApi.token.getWalletTokenBalances(
         {
             address: context.params?.testatorAddress as string,
@@ -36,11 +36,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         }
     )
 
+    const filteredTokenBalances = tokenBalances.toJSON().filter((token) => {
+        return token.name !== null && token.symbol !== null && token.decimals !== null
+    })
     const nftBalances = await Moralis.EvmApi.nft.getWalletNFTs({
         address: context.params?.testatorAddress as string,
         chain: Number(process.env.APP_CHAIN_ID),
     });
-    const tokensWithAllowance = await Promise.all(tokenBalances.toJSON().map(async (balance: any) => {
+    console.log(nftBalances.result)
+    const tokensWithAllowance = await Promise.all(filteredTokenBalances.map(async (balance: any) => {
         const allowance = await Moralis.EvmApi.token.getTokenAllowance({
             chain: Number(process.env.APP_CHAIN_ID),
             address: balance.token_address as string,
@@ -64,6 +68,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         })
     }
     ))
+    
     return {
         props: {
             tokenBalances: tokensWithAllowance,
@@ -71,6 +76,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             testatorAddress: context.params?.testatorAddress,
         },
     };
+
 };
 
 export default TestatorPage

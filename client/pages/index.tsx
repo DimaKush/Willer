@@ -52,8 +52,6 @@ type Erc20Value =
     }
 
 const HomePage: NextPage<Balances> = (props: any) => {
-    const session = useSession()
-    console.log(session.data?.user)
     if (props.error) {return (
         <Default pageName="Home">
         <Text>{props.error}</Text></Default>
