@@ -43,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         address: context.params?.testatorAddress as string,
         chain: Number(process.env.APP_CHAIN_ID),
     });
-    console.log(nftBalances.result)
+    
     const tokensWithAllowance = await Promise.all(filteredTokenBalances.map(async (balance: any) => {
         const allowance = await Moralis.EvmApi.token.getTokenAllowance({
             chain: Number(process.env.APP_CHAIN_ID),

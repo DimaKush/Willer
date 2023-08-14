@@ -49,11 +49,11 @@ const ERC20ApproveButton = ({ contractAddress, testatorAddress }: Props) => {
   if (isLoading) { return <Spinner size={['sm', 'md', 'md']} /> }
   if (isAllowed) {
     return <Tooltip label={`allowance ${ERC20allowance && ERC20allowance.toString()}`} placement='bottom' openDelay={500}
-    ><Icon as={CheckCircleIcon} color="green.500" size={['sm', 'md', 'md']} /></Tooltip>
+    ><Icon as={CheckCircleIcon} color="green.500" /></Tooltip>
   }
   if (notAllowedIcon) {
     return <Tooltip label={`allowance ${ERC20allowance && ERC20allowance.toString()}`} placement='bottom' openDelay={500}
-    ><Icon as={NotAllowedIcon} color="yellow.500" size={['sm', 'md', 'md']} /></Tooltip>
+    ><Icon as={NotAllowedIcon} color="yellow.500" /></Tooltip>
   }
   return <Tooltip label={`allowance ${ERC20allowance && ERC20allowance.toString()}`} placement='bottom' openDelay={500}>
     <IconButton background={'red.600'} aria-label='approval' size={['sm', 'md', 'md']} icon={<AddIcon />}
