@@ -61,12 +61,12 @@ const Will: FC<Balances> = (props) => {
   const account = useAccount()
   const router = useRouter()
   const [userIsTestator, setUserIsTestator] = useState<boolean | undefined>(undefined)
-  const [userIsBeneficiary, setUserIsBeneficiary] = useState<boolean | undefined>(undefined)
+  // const [userIsBeneficiary, setUserIsBeneficiary] = useState<boolean | undefined>(undefined)
   useEffect(() => setUserIsTestator(account.address && props.testatorAddress === account.address), [account.address, router.asPath])
   const { isOpen, onOpen, onClose } = useDisclosure()
   const hoverTrColor = useColorModeValue('gray.100', 'gray.700');
   const will = useWiller(props.testatorAddress)
-  useEffect(() => setUserIsBeneficiary((account.address && will.beneficiaries && will.beneficiaries.includes(account.address)) || (account.address === will.beneficiaryOfERC721)), [account.address, router.asPath])
+  // useEffect(() => setUserIsBeneficiary((account.address && will.beneficiaries && will.beneficiaries.includes(account.address)) || (account.address === will.beneficiaryOfERC721)), [account.address, router.asPath])
   if (userIsTestator === undefined) { return <Spinner /> }
   if (!will.beneficiaries?.length || !will.releaseTime || !will.beneficiaryOfERC721) {
     return (
@@ -144,7 +144,9 @@ const Will: FC<Balances> = (props) => {
             <Button onClick={onOpen}>Create new Will</Button>
             <Text color={'red.600'}>👇 Add tokens to your Will 👇</Text> 
             
-          </VStack> : (userIsBeneficiary ? <ExecuteButton {...props}/> : <Text>Connected address is not beneficiary</Text>)}
+          </VStack> : <ExecuteButton {...props}/> 
+          // (userIsBeneficiary ? <ExecuteButton {...props}/> : <Text>Connected address is not beneficiary</Text>)
+          }
         </VStack>
       </Box>
     </Center>
