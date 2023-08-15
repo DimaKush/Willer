@@ -315,7 +315,7 @@ contract Willer is ReentrancyGuard {
         external
         willExists(testator)
         releasable(testator)
-        executorIsBeneficiary(testator)
+        // executorIsBeneficiary(testator)
         nonReentrant()
     {
         for (uint i = 0; i < tokenERC20List.length; i++) {
@@ -345,7 +345,7 @@ contract Willer is ReentrancyGuard {
         external
         willExists(testator)
         releasable(testator)
-        executorIsBeneficiary(testator)
+        // executorIsBeneficiary(testator)
         nonReentrant()
     {
         for (uint i = 0; i < tokenERC721List.length; i++) {
@@ -391,7 +391,7 @@ contract Willer is ReentrancyGuard {
         external
         willExists(testator)
         releasable(testator)
-        executorIsBeneficiary(testator)
+        // executorIsBeneficiary(testator)
         nonReentrant()
     {
         for (uint i = 0; i < tokenIdLists.length; i++) {
