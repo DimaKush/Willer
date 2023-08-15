@@ -2,7 +2,7 @@
 
 Willer is a smart contract designed to facilitate the secure distribution of ERC20, ERC721, and ERC1155 tokens according to the terms of a digital will. Testators can define beneficiaries, specify their shares, set a release time, and extend the release period if necessary. Beneficiaries, in turn, can claim their allocated tokens once the release time expires.
 
-[Live on Goerli Testnet](https://willer-ui.vercel.app)
+[Live on Goerli Testnet](https://willer-eth.vercel.app)
 
 ## Example
 
