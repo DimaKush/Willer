@@ -4,9 +4,9 @@ import { useState } from 'react'
 import WrapButton from '../../buttons/WrapButton/WrapButton'
 
 const WrapEthField = () => {
-  const [amount, setAmount] = useState('0.01')
+  const [amount, setAmount] = useState('0.001')
   return (<HStack>
-    <NumberInput step={0.01} precision={2} onChange={setAmount} value={amount} w={100}>
+    <NumberInput step={0.001} precision={3} onChange={setAmount} value={amount} w={100}>
       <NumberInputField />
       <NumberInputStepper>
         <NumberIncrementStepper />

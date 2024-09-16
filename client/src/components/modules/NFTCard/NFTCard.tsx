@@ -37,7 +37,7 @@ const NFTCard: FC<INFTCard> = ({ amount, contractType, name, metadata, tokenAddr
         <Box>
           <HStack>
             <Text fontSize={'sm'}>{getEllipsisTxt(tokenAddress)}</Text>
-            <Link isExternal href={`https://goerli.etherscan.io/token/${tokenAddress}`}>
+            <Link isExternal href={`https://sepolia.etherscan.io/token/${tokenAddress}`}>
               <ExternalLinkIcon fontSize={'sm'}/>
             </Link>
           </HStack>

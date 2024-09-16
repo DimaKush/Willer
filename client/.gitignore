@@ -13,7 +13,7 @@
 /out/
 
 # artifacts
-/client/artifacts
+/client/src/artifacts/contracts/dependencies/
 
 # misc
 .DS_Store

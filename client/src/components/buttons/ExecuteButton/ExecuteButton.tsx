@@ -83,7 +83,7 @@ const ExecuteButton: FC<Balances> = ({tokenBalances, nftBalances, testatorAddres
         abi: willerContract.abi,
         functionName: 'batchRelease',
         args,
-        chainId: Number(process.env.APP_CHAIN_ID),
+        chainId: Number(11155111),
         onError(err) {
             console.log(err)
         },

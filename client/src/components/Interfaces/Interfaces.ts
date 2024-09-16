@@ -1,12 +1,12 @@
 export const IDsLenght = 3
 export const approveAmount = 10e18
 import mappings from '../../artifacts/deployments/map.json'
-export const WETHAddress = "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6"
-export const MFAddress = mappings[5]["MultiFaucet"][0]
+export const WETHAddress = "0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9"
+export const MFAddress = mappings["11155111"]["MultiFaucet"][0]
 
 
 export const willerContract = {
-  address: mappings[5]["Willer"][0],
+  address: mappings["11155111"]["Willer"][0],
   abi: require('../../artifacts/contracts/Willer.json').abi
 }
 

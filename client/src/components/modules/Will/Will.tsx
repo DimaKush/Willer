@@ -61,12 +61,10 @@ const Will: FC<Balances> = (props) => {
   const account = useAccount()
   const router = useRouter()
   const [userIsTestator, setUserIsTestator] = useState<boolean | undefined>(undefined)
-  // const [userIsBeneficiary, setUserIsBeneficiary] = useState<boolean | undefined>(undefined)
   useEffect(() => setUserIsTestator(account.address && props.testatorAddress === account.address), [account.address, router.asPath])
   const { isOpen, onOpen, onClose } = useDisclosure()
   const hoverTrColor = useColorModeValue('gray.100', 'gray.700');
   const will = useWiller(props.testatorAddress)
-  // useEffect(() => setUserIsBeneficiary((account.address && will.beneficiaries && will.beneficiaries.includes(account.address)) || (account.address === will.beneficiaryOfERC721)), [account.address, router.asPath])
   if (userIsTestator === undefined) { return <Spinner /> }
   if (!will.beneficiaries?.length || !will.releaseTime || !will.beneficiaryOfERC721) {
     return (
@@ -79,7 +77,7 @@ const Will: FC<Balances> = (props) => {
             </Text>
             <Button onClick={onOpen}>Create Will</Button>
           </VStack> : (
-            <HStack><Link isExternal href={`https://goerli.etherscan.io/address/${props.testatorAddress}`}><ExternalLinkIcon /></Link>
+            <HStack><Link isExternal href={`https://sepolia.etherscan.io/address/${props.testatorAddress}`}><ExternalLinkIcon /></Link>
               <Text>
                 {props.testatorAddress} don't have active Will
               </Text></HStack>)}
@@ -98,7 +96,7 @@ const Will: FC<Balances> = (props) => {
           </Text>
           <HStack>
             <Text fontSize={['xs', 'sm', 'md']}>
-              <Link isExternal href={`https://goerli.etherscan.io/address/${props.testatorAddress}`}>
+              <Link isExternal href={`https://sepolia.etherscan.io/address/${props.testatorAddress}`}>
                 {props.testatorAddress}
               </Link>
             </Text>
@@ -117,7 +115,7 @@ const Will: FC<Balances> = (props) => {
                   <Text key={key} fontSize={['xs', 'sm', 'md']}>
                   {getEllipsisTxt(value, 10)} 
                   </Text>
-                  <Link isExternal href={`https://goerli.etherscan.io/address/${value}`}><ExternalLinkIcon/></Link>
+                  <Link isExternal href={`https://sepolia.etherscan.io/address/${value}`}><ExternalLinkIcon/></Link>
                   </HStack>
                 </Td>
                 <Td>
@@ -131,7 +129,7 @@ const Will: FC<Balances> = (props) => {
           <Text fontSize={['xs', 'sm', 'md']} mt={"50px"}>Beneficiary of all ERC721 tokens:</Text>
           <Text align={'center'} fontSize={['xs', 'sm', 'md']} >
 
-            <Link isExternal href={`https://goerli.etherscan.io/address/${will.beneficiaryOfERC721}`}>
+            <Link isExternal href={`https://sepolia.etherscan.io/address/${will.beneficiaryOfERC721}`}>
               {will.beneficiaryOfERC721}
             </Link>
           </Text>

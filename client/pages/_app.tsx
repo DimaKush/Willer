@@ -1,7 +1,9 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { createClient, configureChains, WagmiConfig, chain } from 'wagmi';
+import { createClient, configureChains, WagmiConfig} from 'wagmi';
 import { extendTheme } from '@chakra-ui/react';
-import { infuraProvider } from 'wagmi/providers/infura';
+
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
+import { mainnet, sepolia } from '@wagmi/core/chains'
 import type { AppProps } from 'next/app';
 import { Session } from 'next-auth';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -26,7 +28,13 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import Moralis from 'moralis';
 
-const { chains, provider, webSocketProvider } = configureChains([chain.goerli], [infuraProvider({ apiKey: process.env.INFURA_API_KEY! })]);
+const { chains, provider, webSocketProvider} = configureChains([sepolia], [jsonRpcProvider({
+  rpc: (chain) => ({
+    http: 'https://sepolia.infura.io/v3/7f2edfe64499473c99a158ee0f43a4c0',
+  }),
+})]);
+console.log(chains)
+
 Moralis.start({ apiKey: process.env.MORALIS_API_KEY })
 
 const { wallets } = getDefaultWallets({
@@ -52,7 +60,7 @@ const config = {
   initialColorMode: 'dark',
   useSystemColorMode: false  
 };
-const client = createClient({ connectors, provider, webSocketProvider, autoConnect: true, })
+const client = createClient({ connectors, provider, webSocketProvider, autoConnect: true })
 const theme = extendTheme({ config });
 
 const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {

@@ -32,7 +32,7 @@ contract Willer is ReentrancyGuard {
     mapping(address => Will) private testatorToWill;
 
     // Event emitted when a new will is added
-    event WillAdded(
+    event NewWill(
         address indexed testator,
         address[] beneficiaries,
         uint[] shares,
@@ -81,31 +81,33 @@ contract Willer is ReentrancyGuard {
         uint amount
     );
 
+    error Unreleasable();
+    error WrongTimestamp();
     modifier releasable(address _testator) {
-        require(
-            block.timestamp >= testatorToWill[_testator].releaseTime,
-            "Willer: unreleasable"
-        );
-        require(block.timestamp != 0);
+        require(block.timestamp >= testatorToWill[_testator].releaseTime, Unreleasable());
+        require(block.timestamp != 0, WrongTimestamp());
         _;
     }
 
+    error InvalidReleaseTimestamp();
     modifier validReleaseTime(uint releaseTimestamp_) {
         require(
             releaseTimestamp_ >= block.timestamp + BUFFER,
-            "Willer: Invalid release timestamp"
+            InvalidReleaseTimestamp()
         );
         _;
     }
 
+    error InvalidBeneficiaryOfERC721();
     modifier validBeneficiaryOfERC721(address beneficiaryOfERC721_) {
         require(
             beneficiaryOfERC721_ != address(0),
-            "Willer: zero address  is not a valid beneficiaryOfERC721"
+            InvalidBeneficiaryOfERC721()
         );
         _;
     }
 
+    error ArraysLengthMismatch();
     modifier validBeneficiariesAndShares(
         address[] calldata beneficiaries_,
         uint[] calldata shares_,
@@ -113,7 +115,7 @@ contract Willer is ReentrancyGuard {
     ) {
         require(
             beneficiaries_.length == shares_.length,
-            "Willer: beneficiaries_ and shares_ length mismatch"
+            ArraysLengthMismatch()
         );
 
         for (uint i; i < beneficiaries_.length; i++) {
@@ -134,43 +136,14 @@ contract Willer is ReentrancyGuard {
         _;
     }
 
+    error NotExist();
     modifier willExists(address _testator) {
         require(
             (testatorToWill[_testator].releaseTime != 0 &&
                 testatorToWill[_testator].beneficiaries.length != 0 &&
                 testatorToWill[_testator].beneficiaryOfERC721 != address(0)),
-            "Willer: will doesn't exist"
+            NotExist()
         );
-        _;
-    }
-
-    modifier sameLengthArrays(
-        address[] calldata beneficiaries_,
-        uint[] calldata shares_
-    ) {
-        require(
-            beneficiaries_.length == shares_.length,
-            "Willer: beneficiaries_ and shares_ length mismatch"
-        );
-        _;
-    }
-
-    modifier executorIsBeneficiary(address _testator) {
-        bool _executorIsBeneficiary = false;
-        for (
-            uint i = 0;
-            i < testatorToWill[_testator].beneficiaries.length;
-            i++
-        ) {
-            if (msg.sender == testatorToWill[_testator].beneficiaries[i]) {
-                _executorIsBeneficiary = true;
-            }
-        }
-        if (msg.sender == testatorToWill[_testator].beneficiaryOfERC721) {
-            _executorIsBeneficiary = true;
-        }
-
-        require(_executorIsBeneficiary, "Willer: executor is not beneficiary");
         _;
     }
 
@@ -194,7 +167,7 @@ contract Willer is ReentrancyGuard {
         for (uint i = 0; i < shares_.length; i++) {
             w.sumShares += shares_[i];
         }
-        emit WillAdded(
+        emit NewWill(
             msg.sender,
             w.beneficiaries,
             w.shares,
@@ -315,7 +288,6 @@ contract Willer is ReentrancyGuard {
         external
         willExists(testator)
         releasable(testator)
-        // executorIsBeneficiary(testator)
         nonReentrant()
     {
         for (uint i = 0; i < tokenERC20List.length; i++) {
@@ -345,7 +317,6 @@ contract Willer is ReentrancyGuard {
         external
         willExists(testator)
         releasable(testator)
-        // executorIsBeneficiary(testator)
         nonReentrant()
     {
         for (uint i = 0; i < tokenERC721List.length; i++) {

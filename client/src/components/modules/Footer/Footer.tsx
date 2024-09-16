@@ -8,7 +8,7 @@ import { willerContract } from 'components/Interfaces';
 const links = {
   github: 'https://github.com/DimaKush/Willer',
   polygonscan: `https://goerli.etherscan.io/address/${willerContract.address}`,
-  etherscan: `https://goerli.etherscan.io/address/${willerContract.address}`,
+  etherscan: `https://sepolia.etherscan.io/address/${willerContract.address}`,
   ethFaucet: 'https://goerlifaucet.com/',
   gitcoin: `https://gitcoin.co/grants/7363/willer-delayed-token-recovery-tool`,
   twitter: "https://twitter.com/Willer_eth",

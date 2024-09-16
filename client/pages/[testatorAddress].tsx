@@ -24,15 +24,15 @@ const TestatorPage: NextPage = (props: any) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const provider = new ethers.providers.InfuraProvider(Number(process.env.APP_CHAIN_ID), { infura: process.env.INFURA_API_KEY })    
+    const provider = new ethers.providers.JsonRpcProvider(`https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`)    
     if (!context.params?.testatorAddress) {
         return { props: { error: 'Connect wallet' } }
     }
-    
+
     const tokenBalances = await Moralis.EvmApi.token.getWalletTokenBalances(
         {
             address: context.params?.testatorAddress as string,
-            chain: Number(process.env.APP_CHAIN_ID),
+            chain: Number(11155111),
         }
     )
 
@@ -41,12 +41,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     })
     const nftBalances = await Moralis.EvmApi.nft.getWalletNFTs({
         address: context.params?.testatorAddress as string,
-        chain: Number(process.env.APP_CHAIN_ID),
+        chain: Number(11155111),
     });
     
     const tokensWithAllowance = await Promise.all(filteredTokenBalances.map(async (balance: any) => {
         const allowance = await Moralis.EvmApi.token.getTokenAllowance({
-            chain: Number(process.env.APP_CHAIN_ID),
+            chain: Number(11155111),
             address: balance.token_address as string,
             ownerAddress: context.params?.testatorAddress as string,
             spenderAddress: willerContract.address,

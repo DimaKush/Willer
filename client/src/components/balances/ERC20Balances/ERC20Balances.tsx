@@ -90,7 +90,7 @@ const ERC20Balances: FC<Balances> = ({ tokenBalances, testatorAddress }) => {
                             <HStack>
                               <Avatar size="xs" src={logo || ''} name={name} />
                               <Text fontSize={['xs', 'sm', 'md']}>{name}</Text>
-                              <Link isExternal href={`https://goerli.etherscan.io/token/${token_address}`} pr={'7px'}>
+                              <Link isExternal href={`https://sepolia.etherscan.io/token/${token_address}`} pr={'7px'}>
                                 <ExternalLinkIcon fontSize={'xs'} />
                               </Link>
                             </HStack>

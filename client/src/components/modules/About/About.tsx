@@ -18,9 +18,13 @@ const About: FC = () => {
         <br />
         - Private Key Protection: Extend the release period as proof of ongoing private key access.
         <br />
-        - No protocol fee, no DAO or token
+        - No protocol fee
         <br />
-        - 100 % Donations go to project contributors
+        - No third perties
+        <br />
+        - No owner
+        <br />
+        - Not upgradable
         </Text>
       </VStack>
     </Box>
