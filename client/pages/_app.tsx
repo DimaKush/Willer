@@ -30,7 +30,7 @@ import Moralis from 'moralis';
 
 const { chains, provider, webSocketProvider} = configureChains([sepolia], [jsonRpcProvider({
   rpc: (chain) => ({
-    http: `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    http: 'https://sepolia.infura.io/v3/7f2edfe64499473c99a158ee0f43a4c0',
   }),
 })]);
 console.log(chains)
