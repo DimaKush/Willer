@@ -1,7 +1,7 @@
 import { Text } from "@chakra-ui/react"
 import { ERC20Balances } from "components/balances/ERC20Balances"
 import { NFTBalances } from "components/balances/NFTBalances"
-import { IERC721, willerContract } from "components/Interfaces"
+import { IERC20, IERC721, willerContract } from "components/Interfaces"
 import { Default } from "components/layouts/Default"
 import { Will } from "components/modules"
 import { BigNumber, ethers } from "ethers"
@@ -14,9 +14,9 @@ const TestatorPage: NextPage = (props: any) => {
         <Default pageName="Will">
             {(props.error) ? (<Text>{(props.error)}</Text>) : (
                 <>
-                <Will {...props} />
-                <ERC20Balances {...props} />
-                <NFTBalances {...props} />
+                    <Will {...props} />
+                    <ERC20Balances {...props} />
+                    <NFTBalances {...props} />
                 </>
             )}
         </Default>
@@ -24,7 +24,7 @@ const TestatorPage: NextPage = (props: any) => {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const provider = new ethers.providers.JsonRpcProvider(`https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`)    
+    const provider = new ethers.providers.JsonRpcProvider(`https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY}`)
     if (!context.params?.testatorAddress) {
         return { props: { error: 'Connect wallet' } }
     }
@@ -43,39 +43,36 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         address: context.params?.testatorAddress as string,
         chain: Number(11155111),
     });
-    
-    const tokensWithAllowance = await Promise.all(filteredTokenBalances.map(async (balance: any) => {
-        const allowance = await Moralis.EvmApi.token.getTokenAllowance({
-            chain: Number(11155111),
-            address: balance.token_address as string,
-            ownerAddress: context.params?.testatorAddress as string,
-            spenderAddress: willerContract.address,
-        })
-        return ({
-            ...balance,
-            isApprovedForAll: BigNumber.from(allowance.toJSON().allowance).gt(BigNumber.from(balance.balance)),
-            })
-        }))
 
-    const nftWithAllowance = await Promise.all(nftBalances.result.map(async (balance: any) => {
-        const contract = new ethers.Contract(balance._data.tokenAddress._value, IERC721, provider)
-        const allowance = await contract.isApprovedForAll(context.params?.testatorAddress, willerContract.address)
-        return ({
-            ...balance._data,
-            tokenAddress: balance._data.tokenAddress._value,
-            ownerOf: balance._data.ownerOf._value,
-            isApprovedForAll: allowance,
-        })
-    }
-    ))
-    
-    return {
-        props: {
-            tokenBalances: tokensWithAllowance,
-            nftBalances: JSON.parse(JSON.stringify(nftWithAllowance)),
-            testatorAddress: context.params?.testatorAddress,
-        },
-    };
+    const tokensWithAllowance = await Promise.all(filteredTokenBalances.map(async (balance: any) => {
+        if (balance) {
+            const contract = new ethers.Contract(balance.token_address, IERC20, provider)
+            const allowance = await contract.allowance(context.params?.testatorAddress, willerContract.address)
+            return ({
+                ...balance,
+                isApprovedForAll: BigNumber.from(allowance).gt(BigNumber.from(balance.balance)),
+            })
+    }}))
+
+const nftWithAllowance = await Promise.all(nftBalances.result.map(async (balance: any) => {
+    const contract = new ethers.Contract(balance._data.tokenAddress._value, IERC721, provider)
+    const allowance = await contract.isApprovedForAll(context.params?.testatorAddress, willerContract.address)
+    return ({
+        ...balance._data,
+        tokenAddress: balance._data.tokenAddress._value,
+        ownerOf: balance._data.ownerOf._value,
+        isApprovedForAll: allowance,
+    })
+}
+))
+
+return {
+    props: {
+        tokenBalances: tokensWithAllowance,
+        nftBalances: JSON.parse(JSON.stringify(nftWithAllowance)),
+        testatorAddress: context.params?.testatorAddress,
+    },
+};
 
 };
 
