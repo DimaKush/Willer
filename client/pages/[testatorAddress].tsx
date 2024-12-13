@@ -52,27 +52,32 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
                 ...balance,
                 isApprovedForAll: BigNumber.from(allowance).gt(BigNumber.from(balance.balance)),
             })
-    }}))
+        } 
+        return({
+            ...balance,
+            isApprovedForAll: false,
+        })
+    }))
 
-const nftWithAllowance = await Promise.all(nftBalances.result.map(async (balance: any) => {
-    const contract = new ethers.Contract(balance._data.tokenAddress._value, IERC721, provider)
-    const allowance = await contract.isApprovedForAll(context.params?.testatorAddress, willerContract.address)
-    return ({
-        ...balance._data,
-        tokenAddress: balance._data.tokenAddress._value,
-        ownerOf: balance._data.ownerOf._value,
-        isApprovedForAll: allowance,
-    })
-}
-))
+    const nftWithAllowance = await Promise.all(nftBalances.result.map(async (balance: any) => {
+        const contract = new ethers.Contract(balance._data.tokenAddress._value, IERC721, provider)
+        const allowance = await contract.isApprovedForAll(context.params?.testatorAddress, willerContract.address)
+        return ({
+            ...balance._data,
+            tokenAddress: balance._data.tokenAddress._value,
+            ownerOf: balance._data.ownerOf._value,
+            isApprovedForAll: allowance,
+        })
+    }
+    ))
 
-return {
-    props: {
-        tokenBalances: tokensWithAllowance,
-        nftBalances: JSON.parse(JSON.stringify(nftWithAllowance)),
-        testatorAddress: context.params?.testatorAddress,
-    },
-};
+    return {
+        props: {
+            tokenBalances: tokensWithAllowance,
+            nftBalances: JSON.parse(JSON.stringify(nftWithAllowance)),
+            testatorAddress: context.params?.testatorAddress,
+        },
+    };
 
 };
 
