@@ -103,7 +103,7 @@ const ERC20Balances: FC<Balances> = ({ tokenBalances, testatorAddress }) => {
                           </VStack>
                         </HStack>
                       </Td>
-                      <Td><ERC20ApproveButton isApprovedForAll={isApprovedForAll!} balance={balance} contractAddress={token_address || ''} testatorAddress={testatorAddress} /></Td>
+                      <Td><ERC20ApproveButton isApprovedForAll={isApprovedForAll!} contractAddress={token_address || ''} testatorAddress={testatorAddress} /></Td>
                     </Tr>))}
                 
                 </Tbody>
