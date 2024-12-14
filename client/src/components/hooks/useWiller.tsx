@@ -16,7 +16,6 @@ export const useWiller = (testatorAddress: string) : IWill => {
         abi: willerContract.abi,
         functionName: "getBeneficiaries",
         args: [testatorAddress],
-        watch: true
     }).data as string[]
 
     const shares = useContractRead({
@@ -24,7 +23,6 @@ export const useWiller = (testatorAddress: string) : IWill => {
         abi: willerContract.abi,
         functionName: "getShares",
         args: [testatorAddress],
-        watch: true
     }).data as BigNumber[]
 
     const releaseTime = useContractRead({
@@ -32,7 +30,6 @@ export const useWiller = (testatorAddress: string) : IWill => {
         abi: willerContract.abi,
         functionName: "getReleaseTime",
         args: [testatorAddress],
-        watch: true
     }).data as BigNumber
 
     const beneficiaryOfERC721 = useContractRead({
@@ -40,7 +37,6 @@ export const useWiller = (testatorAddress: string) : IWill => {
         abi: willerContract.abi,
         functionName: "getBeneficiaryOfERC721",
         args: [testatorAddress],
-        watch: true
     }).data as string
 
     const sumShares = useContractRead({
@@ -48,7 +44,6 @@ export const useWiller = (testatorAddress: string) : IWill => {
         abi: willerContract.abi,
         functionName: "getSumShares",
         args: [testatorAddress],
-        watch: true
     }).data as BigNumber
     
     return { beneficiaries, shares, releaseTime, beneficiaryOfERC721, sumShares }

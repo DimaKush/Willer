@@ -1,14 +1,14 @@
 type TNFTBalance = {
   tokenAddress: string;
   chain: string | number;
-  ownerOf: string;
+  ownerOf?: string;
   blockNumberMinted: string | undefined;
   blockNumber: string | undefined;
-  tokenId: string | number;
-  contractType: string | number;
+  tokenId?: string | number;
+  contractType?: string | number;
   tokenUri?: string | undefined;
   tokenHash?: string | undefined;
-  metadata: IMetadata | undefined;
+  metadata?: IMetadata | undefined;
   name?: string | undefined;
   symbol?: string | undefined;
   lastMetadataSync?: Date | undefined;

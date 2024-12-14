@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { createClient, configureChains, WagmiConfig} from 'wagmi';
+import { createClient, configureChains, WagmiConfig } from 'wagmi';
 import { extendTheme } from '@chakra-ui/react';
 
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
@@ -28,12 +28,15 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import Moralis from 'moralis';
 
-const { chains, provider, webSocketProvider} = configureChains([sepolia], [jsonRpcProvider({
-  rpc: (chain) => ({
-    http: 'https://sepolia.infura.io/v3/7f2edfe64499473c99a158ee0f43a4c0',
-  }),
-})]);
-console.log(chains)
+
+const { chains, provider } = configureChains([sepolia], [
+  jsonRpcProvider({
+    rpc: (chain) => ({
+      http: `https://sepolia.infura.io/v3/e60d94849b4b4fc0ae1683fb84491335`,
+    }),
+  })
+],
+{ pollingInterval: 10_000 },)
 
 Moralis.start({ apiKey: process.env.MORALIS_API_KEY })
 
@@ -58,9 +61,9 @@ const connectors = connectorsForWallets([
 ]);
 const config = {
   initialColorMode: 'dark',
-  useSystemColorMode: false  
+  useSystemColorMode: false
 };
-const client = createClient({ connectors, provider, webSocketProvider, autoConnect: true })
+const client = createClient({ connectors, provider, autoConnect: true })
 const theme = extendTheme({ config });
 
 const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session }>) => {

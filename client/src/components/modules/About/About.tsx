@@ -20,8 +20,6 @@ const About: FC = () => {
         <br />
         - No protocol fee
         <br />
-        - No third perties
-        <br />
         - No owner
         <br />
         - Not upgradable

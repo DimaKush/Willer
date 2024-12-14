@@ -81,7 +81,7 @@ const ERC20Balances: FC<Balances> = ({ tokenBalances, testatorAddress }) => {
             <TableContainer w={'full'}>
               <Table size={['xs', 'sm', 'md']}>
                 <Tbody>
-                  {tokenBalances?.map(({ balance, name, symbol, logo, token_address, decimals }, key) => (
+                  {tokenBalances?.map(({ balance, name, symbol, logo, token_address, decimals, isApprovedForAll}, key) => (
                     <Tr key={`${symbol}-${key}-tr`}>
                       <Td>
                         <HStack>
@@ -103,7 +103,7 @@ const ERC20Balances: FC<Balances> = ({ tokenBalances, testatorAddress }) => {
                           </VStack>
                         </HStack>
                       </Td>
-                      <Td><ERC20ApproveButton contractAddress={token_address || ''} testatorAddress={testatorAddress}/></Td>
+                      <Td><ERC20ApproveButton isApprovedForAll={isApprovedForAll!} balance={balance} contractAddress={token_address || ''} testatorAddress={testatorAddress} /></Td>
                     </Tr>))}
                 
                 </Tbody>

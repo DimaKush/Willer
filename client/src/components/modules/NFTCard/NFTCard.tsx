@@ -5,9 +5,9 @@ import { useSession } from 'next-auth/react';
 import type { FC } from "react";
 import { getEllipsisTxt } from 'utils/format';
 import { resolveIPFS } from 'utils/resolveIPFS';
-import { INFTCard } from './types';
+import { INFTCard } from '../NFTCard/types';
 
-const NFTCard: FC<INFTCard> = ({ amount, contractType, name, metadata, tokenAddress, tokenId, testatorAddress }) => {
+const NFTCard: FC<INFTCard> = ({ amount, contractType, name, metadata, tokenAddress, tokenId, testatorAddress, isApprovedForAll }) => {
   const descBgColor = useColorModeValue('gray.200', 'gray.600')
   const session = useSession()
   if (session.status === "loading") {return <Spinner/>}
@@ -48,7 +48,7 @@ const NFTCard: FC<INFTCard> = ({ amount, contractType, name, metadata, tokenAddr
             Allowance
           </Box>
           <Box>
-              {(testatorAddress) && <ERC721ApproveButton contractAddress={tokenAddress} testatorAddress={testatorAddress}/>}
+            {(testatorAddress) && <ERC721ApproveButton isApprovedForAll={isApprovedForAll!} tokenAddress={tokenAddress} testatorAddress={testatorAddress} />}
           </Box>
         </Box>
       </SimpleGrid>
