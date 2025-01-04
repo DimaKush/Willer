@@ -1,9 +1,13 @@
-__pycache__
+# artifacts
+/client/src/artifacts/
+/client/src/broadcast/
+
+# cache
+/cache
+/lib
+
+# local env files
+.env.local
 .env
-.history
-.hypothesis/
-build/
-reports/
-dev/
-.pytest_cache
-old/
+
+/.vscode

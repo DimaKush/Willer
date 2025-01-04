@@ -1,0 +1,14 @@
+[profile.default]
+src = "src"
+out = "client/src/artifacts"
+libs = ["lib"]
+broadcast = "client/src/broadcast"
+solc = "0.8.21"
+remappings = ["@openzeppelin/=lib/openzeppelin-contracts/"]
+
+[profile.default.fuzz]
+runs = 1
+
+[rpc_endpoints]
+sepolia = "${SEPOLIA_RPC_URL}"
+mainnet = "${MAINNET_RPC_URL}"

@@ -2,7 +2,7 @@
 
 Willer is a smart contract designed to facilitate the secure distribution of ERC20, ERC721, and ERC1155 tokens according to the terms of a digital will. Testators can define beneficiaries, specify their shares, set a release time, and extend the release period if necessary. Beneficiaries, in turn, can claim their allocated tokens once the release time expires.
 
-[Live on Goerli Testnet](https://willer-eth.vercel.app)
+[Live on Sepolia Testnet](https://willer-eth.vercel.app)
 
 ## Example
 
@@ -10,67 +10,41 @@ Example: Alice bequeaths her tokens to Bob, Tim and Jane. Alice set share of ERC
 
 ## Installation
 
-1. [Install Brownie](https://eth-brownie.readthedocs.io/en/stable/install.html).
+1. [Install Foundry](https://book.getfoundry.sh/getting-started/installation)
 
 2. Clone this repo 
-   ```
+   ```bash
    git clone https://github.com/DimaKush/Willer
    cd Willer
+   forge install
    ```
-3. If you want to deploy on testnets, do the following.
 
-   Set our environment variables to a .env file. You can use the .env_example in this repo
-   as a template, just fill in the values and rename it to '.env'.
+3. If you want to deploy on testnets:
+   Create a .env file using .env.example as a template and add your environment variables.
 
 ## Usage
 
-1. Open the Brownie console. Starting the console launches a fresh [Ganache](https://www.trufflesuite.com/ganache) instance in the background.
-
+1. To compile the contracts:
    ```bash
-   brownie console
+   forge build
    ```
 
-   Alternatively, to run on Goeri, set the network flag to goerli
-
-   ```
-   brownie console --network goerli
-   ```
-
-2. Run the [deployment script](scripts/deploy_willer.py) to deploy the project's smart contracts using Brownie console:
-
-   ```python
-   run("deploy_willer")
-   ```
-   Or in terminal:
-
+2. To deploy (example using Sepolia):
    ```bash
-   brownie run deploy_willer --network goerli
+   forge script script/DeployWiller.s.sol --rpc-url sepolia --broadcast
    ```
 
-   Replace `goerli` with the name of the network you wish you use. You may also wish to adjust Brownie's [network settings](https://eth-brownie.readthedocs.io/en/stable/network-management.html).
-
-3. Interact with the smart contract using Brownie console:
-
-   ```python
-   # setup script
-   run('setup_will')
-   # add will
-   Willer[-1].addWill([accounts[1], accounts[2]], [80, 20], accounts[3], 1691455347, {'from': accounts[0]})
-   # set new release time
-   Willer[-1].setNewReleaseTime(1791455347, {'from': accounts[0]})   
+3. To run tests:
+   ```bash
+   forge test
    ```
-   
-### Configuring
-
-Configure settings at 'brownie-config.yaml'
 
 ### Testing
-
-To run the test suite:
-
+To run the full test suite with gas reporting:
 ```bash
-brownie test
+forge test --gas-report
 ```
+
 ## License
 
 Distributed under the [MIT License](https://github.com/DimaKush/Willer/blob/master/LICENSE)
@@ -95,3 +69,5 @@ Distributed under the [MIT License](https://github.com/DimaKush/Willer/blob/mast
 [Chakra-ui](https://chakra-ui.com)
 
 [Wagmi](https://wagmi.sh/)
+
+[Foundry Book](https://book.getfoundry.sh/)
