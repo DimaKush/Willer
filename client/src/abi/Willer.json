@@ -1,0 +1,418 @@
+[
+  { "inputs": [], "name": "ArraysLengthMismatch", "type": "error" },
+  { "inputs": [], "name": "InvalidBeneficiaryOfERC721", "type": "error" },
+  { "inputs": [], "name": "InvalidReleaseTimestamp", "type": "error" },
+  { "inputs": [], "name": "NotExist", "type": "error" },
+  { "inputs": [], "name": "Unreleasable", "type": "error" },
+  { "inputs": [], "name": "WrongTimestamp", "type": "error" },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "newBeneficiaries",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "newShares",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "BeneficiariesUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newBeneficiaryOfERC721",
+        "type": "address"
+      }
+    ],
+    "name": "BeneficiaryOfERC721Updated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "tokenERC1155Address",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC1155TokensReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "tokenERC20Address",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC20TokensReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "tokenERC721Address",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ERC721TokensReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "beneficiaries",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "shares",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiaryOfERC721",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "releaseTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "NewWill",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "testator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newReleaseTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "ReleaseTimeUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "beneficiaries_",
+        "type": "address[]"
+      },
+      { "internalType": "uint256[]", "name": "shares_", "type": "uint256[]" },
+      {
+        "internalType": "address",
+        "name": "beneficiaryOfERC721_",
+        "type": "address"
+      },
+      { "internalType": "uint256", "name": "releaseTime_", "type": "uint256" }
+    ],
+    "name": "addWill",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" },
+      {
+        "internalType": "contract IERC20[]",
+        "name": "tokenERC20List",
+        "type": "address[]"
+      },
+      {
+        "internalType": "contract IERC721[]",
+        "name": "tokenERC721List",
+        "type": "address[]"
+      },
+      {
+        "internalType": "contract IERC1155[]",
+        "name": "tokenERC1155List",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[][]",
+        "name": "ERC721tokenIdLists",
+        "type": "uint256[][]"
+      },
+      {
+        "internalType": "uint256[][]",
+        "name": "ERC1155tokenIdLists",
+        "type": "uint256[][]"
+      }
+    ],
+    "name": "batchRelease",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" },
+      {
+        "internalType": "contract IERC1155",
+        "name": "tokenERC1155",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "tokenIdLists",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "batchReleaseERC1155",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" },
+      {
+        "internalType": "contract IERC20[]",
+        "name": "tokenERC20List",
+        "type": "address[]"
+      }
+    ],
+    "name": "batchReleaseERC20",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" },
+      {
+        "internalType": "contract IERC721[]",
+        "name": "tokenERC721List",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[][]",
+        "name": "tokenIdLists",
+        "type": "uint256[][]"
+      }
+    ],
+    "name": "batchReleaseERC721",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" }
+    ],
+    "name": "getBeneficiaries",
+    "outputs": [
+      { "internalType": "address[]", "name": "", "type": "address[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_testator", "type": "address" }
+    ],
+    "name": "getBeneficiaryOfERC721",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "beneficiaryOfERC721",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getBuffer",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getMaxShare",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" }
+    ],
+    "name": "getReleaseTime",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" }
+    ],
+    "name": "getShares",
+    "outputs": [
+      { "internalType": "uint256[]", "name": "", "type": "uint256[]" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "testator", "type": "address" }
+    ],
+    "name": "getSumShares",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "newBeneficiaries",
+        "type": "address[]"
+      },
+      { "internalType": "uint256[]", "name": "newShares", "type": "uint256[]" }
+    ],
+    "name": "setNewBeneficiaries",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newBeneficiaryOfERC721",
+        "type": "address"
+      }
+    ],
+    "name": "setNewBeneficiaryOfERC721",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "newReleaseTime", "type": "uint256" }
+    ],
+    "name": "setNewReleaseTime",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

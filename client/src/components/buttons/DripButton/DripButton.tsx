@@ -1,11 +1,11 @@
 import { Button, Spinner, Text } from '@chakra-ui/react'
-import { IMultiFaucet, MFAddress } from 'components/Interfaces'
+import { multiFaucet } from 'components/Interfaces'
 import { useContractWrite, usePrepareContractWrite } from 'wagmi'
 
 export const DripButton = () => {
   const { config } = usePrepareContractWrite({
-    address: MFAddress,
-    abi: IMultiFaucet,
+    address: multiFaucet.address,
+    abi: multiFaucet.abi,
     functionName: 'drip',
     onError(err) {
       console.log("Error:", err)
