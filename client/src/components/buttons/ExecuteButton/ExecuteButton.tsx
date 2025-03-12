@@ -64,19 +64,19 @@ const ExecuteButton: FC<Balances> = ({tokenBalances, nftBalances, testatorAddres
     })
 
     const handleERC20Select = (address: string) => {
-        setSelectedTokens(prev => ({
+        setSelectedTokens((prev) => ({
             ...prev,
             erc20: prev.erc20.includes(address) 
-                ? prev.erc20.filter(a => a !== address)
+                ? prev.erc20.filter((a) => a !== address)
                 : [...prev.erc20, address]
         }))
     }
 
     const handleNFTSelect = (nft: TNFTBalance, type: 'erc721' | 'erc1155') => {
-        setSelectedTokens(prev => ({
+        setSelectedTokens((prev) => ({
             ...prev,
             [type]: prev[type].includes(nft)
-                ? prev[type].filter(n => n !== nft)
+                ? prev[type].filter((n) => n !== nft)
                 : [...prev[type], nft]
         }))
     }
