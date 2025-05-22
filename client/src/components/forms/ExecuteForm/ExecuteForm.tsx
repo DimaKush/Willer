@@ -27,6 +27,7 @@ const ExecuteForm = () => {
                 w={['150px', '320px', '420px']}
             />
             <Button size={["sm", "md", "md"]}
+                marginLeft={'10px'}
                 onClick={handleClick} ><SearchIcon /></Button>
         </Flex>
     )

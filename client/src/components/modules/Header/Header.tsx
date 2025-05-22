@@ -30,6 +30,7 @@ const Header = () => {
       {mounted && 
       <Flex align={'center'} justify="center" mt={5}>
       <Button size={["sm", "md", "md"]}
+        marginRight={'10px'}
         onClick={() => router.push(`/${account.address}`)}>My will</Button>
       <ExecuteForm />
       </Flex>}

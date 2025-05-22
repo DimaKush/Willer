@@ -7,7 +7,7 @@ const Default: FC<{ children: ReactNode; pageName: string }> = ({ children, page
   const bgColor = useColorModeValue("https://i.ibb.co/wB9Dd4j/whiteDot.png",
   'https://i.ibb.co/tCLbZkM/blackDot.png')
   return (   
-  <Box  w='100%' h='100%' bgImage={bgColor}
+  <Box  w='100%' minH='100vh' bgImage={bgColor}
   bgSize='cover' bgAttachment='fixed' bgPos='50% 0%' pos='relative' bgRepeat='no-repeat'> 
       <Head>
         <title>{`${pageName} | Willer`}</title>
@@ -15,7 +15,7 @@ const Default: FC<{ children: ReactNode; pageName: string }> = ({ children, page
       </Head>
 
       <Header />
-      <Container maxW="container.lg" p={3} marginTop={100} as="main" minH="70vh">
+      <Container maxW="container.lg" p={3} marginTop={50} as="main" minH="60vh">
         {children}
       </Container>
       <Footer />

@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { createClient, configureChains, WagmiConfig } from 'wagmi';
 import { extendTheme } from '@chakra-ui/react';
+import Head from 'next/head';
 
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { mainnet, sepolia } from '@wagmi/core/chains'
@@ -90,17 +91,22 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppProps<{ s
   }, [router])
 
   return (
-    <ChakraProvider resetCSS theme={theme}>
-      <SessionProvider session={session} refetchInterval={0}>
-        <WagmiConfig client={client}>
-          <RainbowKitSiweNextAuthProvider>
-            <RainbowKitProvider appInfo={demoAppInfo} chains={chains} showRecentTransactions modalSize='compact'>
-              <Component {...pageProps} />
-            </RainbowKitProvider>
-          </RainbowKitSiweNextAuthProvider>
-        </WagmiConfig>
-      </SessionProvider>
-    </ChakraProvider>
+    <>
+      <Head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+      </Head>
+      <ChakraProvider resetCSS theme={theme}>
+        <SessionProvider session={session} refetchInterval={0}>
+          <WagmiConfig client={client}>
+            <RainbowKitSiweNextAuthProvider>
+              <RainbowKitProvider appInfo={demoAppInfo} chains={chains} showRecentTransactions modalSize='compact'>
+                <Component {...pageProps} />
+              </RainbowKitProvider>
+            </RainbowKitSiweNextAuthProvider>
+          </WagmiConfig>
+        </SessionProvider>
+      </ChakraProvider>
+    </>
   );
 };
 
